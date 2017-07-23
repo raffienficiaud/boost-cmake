@@ -250,7 +250,7 @@ function(boost_add_subdirectories_in_order)
         continue()
       endif()
 
-      message(STATUS "Checking component ${_component}")
+      #message(STATUS "Checking component ${_component}")
 
       boost_package_get_all_dependencies(
         COMPONENT ${_component}
