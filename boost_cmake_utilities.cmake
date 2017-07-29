@@ -105,16 +105,21 @@ function(boost_discover_packages_and_components)
   set(all_components_dependency)
   foreach(_lib IN LISTS local_cmd_LIST_FOLDERS)
 
+    string(TOLOWER ${_lib} CURRENT_PACKAGE_NAME_LOWER)
+    string(TOUPPER ${_lib} CURRENT_PACKAGE_NAME)
+
+    # if there is no description of the component, then we do this implictely
+    # by adding the :build component and making doc/test appear as dependencies (if those exist)
+    list(APPEND all_packages ${CURRENT_PACKAGE_NAME_LOWER})
+
     if(EXISTS "${local_cmd_ROOT_PATH}/${_lib}/${description_file}")
       message(STATUS "Exploring dependencies of library ${_lib}")
       include("${local_cmd_ROOT_PATH}/${_lib}/${description_file}")
 
-      string(TOLOWER ${_lib} CURRENT_PACKAGE_NAME_LOWER)
-      string(TOUPPER ${_lib} CURRENT_PACKAGE_NAME)
-      list(APPEND all_packages ${CURRENT_PACKAGE_NAME_LOWER})
+      #list(APPEND all_packages ${CURRENT_PACKAGE_NAME_LOWER})
 
       set(_current_package_components ${BOOST_LIB_${CURRENT_PACKAGE_NAME}_COMPONENTS})
-      message(STATUS "** Package ${CURRENT_PACKAGE_NAME} defines components ${_current_package_components}")
+      message(STATUS "** Package ${CURRENT_PACKAGE_NAME} defines components '${_current_package_components}'")
       # todo: check that package has not been defined yet
 
       # integrity check and discovery
@@ -137,6 +142,18 @@ function(boost_discover_packages_and_components)
         #    ${BOOST_LIB_${CURRENT_PACKAGE_NAME}_COMPONENTS_${CURRENT_COMPONENT_NAME}_DEPENDENCY}
         #    PARENT_SCOPE)
       endforeach()
+    else()
+      message(STATUS "** Package [implicit] ${CURRENT_PACKAGE_NAME_LOWER} with component 'build'")
+      list(APPEND all_packages_and_components "${CURRENT_PACKAGE_NAME_LOWER}:build")
+      if(FALSE)
+        # for the moment: disabling as there are some libs containing a CMakeLists.txt that is breaking the full project
+      foreach(_current_component doc test)
+        if(EXISTS "${local_cmd_ROOT_PATH}/${_lib}/${_current_component}/CMakeLists.txt")
+          list(APPEND all_packages_and_components "${CURRENT_PACKAGE_NAME_LOWER}:${_current_component}")
+          list(APPEND all_components_dependency "${CURRENT_PACKAGE_NAME_LOWER}:${_current_component}:${CURRENT_PACKAGE_NAME_LOWER}:build")
+        endif()
+      endforeach()
+      endif()
     endif()
   endforeach()
 
@@ -279,7 +296,22 @@ function(boost_add_subdirectories_in_order)
 
         set(BOOST_CURRENT_PACKAGE "${current_package}")
         set(BOOST_CURRENT_COMPONENT "${current_component}")
-        add_subdirectory(${local_cmd_ROOT_PATH}/${current_package}/${current_component} tmp_boost_${current_package}_${current_component})
+
+        if(EXISTS "${local_cmd_ROOT_PATH}/${current_package}/${current_component}/CMakeLists.txt")
+          # in case we have a proper CMakeLists.txt, we include it
+          add_subdirectory(${local_cmd_ROOT_PATH}/${current_package}/${current_component} tmp_boost_${current_package}_${current_component})
+        else()
+          # in case we do not have a cmakelists.txt, we simulate a header only
+          message(STATUS "[header only] boost_${BOOST_CURRENT_PACKAGE}_header_only")
+          add_library(boost_${BOOST_CURRENT_PACKAGE}_header_only INTERFACE)
+          target_include_directories(boost_${BOOST_CURRENT_PACKAGE}_header_only
+            INTERFACE
+              $<BUILD_INTERFACE:${local_cmd_ROOT_PATH}/${current_package}/include>
+              $<INSTALL_INTERFACE:include>)
+          add_library(boost::${BOOST_CURRENT_PACKAGE} ALIAS boost_${BOOST_CURRENT_PACKAGE}_header_only)
+          add_library(boost::${BOOST_CURRENT_PACKAGE}::header ALIAS boost_${BOOST_CURRENT_PACKAGE}_header_only)
+          #set_target_properties(boost_${BOOST_CURRENT_PACKAGE}_header_only PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}")
+        endif()
       endif()
 
     endforeach()

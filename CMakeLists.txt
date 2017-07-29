@@ -9,6 +9,8 @@ cmake_minimum_required(VERSION 3.4)
 
 project(Boost)
 
+enable_testing()
+
 set(BOOST_ROOT_FOLDER ${CMAKE_CURRENT_LIST_DIR})
 #set(CMAKE_MODULE_PATH tools/boost-cmake/${CMAKE_MODULE_PATH})
 
@@ -27,7 +29,30 @@ boost_get_all_libs(
   RELATIVE_PATH "${BOOST_ROOT_FOLDER}/libs"
   OUTPUT_VAR boost_all_library)
 
-# check which are packages and declare their dependencies
+# temporary -- patching all <boost>/libs/<library> with the files in "tools/boost-cmake/libs/"
+boost_get_all_libs(
+  ROOT_PATH "${BOOST_ROOT_FOLDER}/tools/boost-cmake/libs"
+  RELATIVE_PATH "${BOOST_ROOT_FOLDER}/tools/boost-cmake/libs"
+  OUTPUT_VAR patch_candidate_libs)
+
+set(relevant_folders_to_patch "build" "doc" "test")
+foreach(_folder IN LISTS patch_candidate_libs)
+  foreach(_subfolder IN LISTS relevant_folders_to_patch)
+    if(EXISTS "${BOOST_ROOT_FOLDER}/tools/boost-cmake/libs/${_folder}/${_subfolder}")
+      message(STATUS "[tmp-patch] '${_folder}/${_subfolder}'")
+      file(COPY
+        ${BOOST_ROOT_FOLDER}/tools/boost-cmake/libs/${_folder}/${_subfolder}/
+        DESTINATION ${BOOST_ROOT_FOLDER}/libs/${_folder}/${_subfolder}/
+        FILES_MATCHING
+          PATTERN "*.cmake"
+          PATTERN "CMakeLists.txt"
+        )
+    endif()
+  endforeach()
+endforeach()
+
+
+# dependencies -- check which are packages and declare their dependencies
 boost_discover_packages_and_components(
   ROOT_PATH "${BOOST_ROOT_FOLDER}/libs/"
   LIST_FOLDERS ${boost_all_library}
