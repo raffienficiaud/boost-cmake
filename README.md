@@ -63,3 +63,5 @@ Those are meant to show some functional and real-case examples for porting to cm
 
 * components that are not "build" should not be built by default
 * filter the package/component that is required by the developer
+* include header-only files as custom targets (option in the IDE)
+* being able to specify which component should be discarded (eg. doc and test turned off)
