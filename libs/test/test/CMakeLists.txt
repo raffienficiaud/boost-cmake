@@ -21,6 +21,8 @@ endif()
 # unit tests folder
 set(BOOST_TEST_UNITTESTS_FOLDER ${CMAKE_CURRENT_LIST_DIR})
 
+set(BOOST_TEST_TEST_PREFIX_NAME boost_test__test_)
+
 # documentation tests
 file(GLOB_RECURSE
      BOOST_UTF_DOC_EXAMPLES
@@ -28,13 +30,13 @@ file(GLOB_RECURSE
 
 foreach(_h IN LISTS BOOST_UTF_DOC_EXAMPLES)
   get_filename_component(_hh ${_h} NAME_WE)
-  add_executable(doc-${_hh} ${_h} ../doc/examples/${_hh}.output)
-  target_link_libraries(doc-${_hh} boost::${BOOST_CURRENT_PACKAGE}::header)
+  add_executable(${BOOST_TEST_TEST_PREFIX_NAME}doc-${_hh} ${_h} ../doc/examples/${_hh}.output)
+  target_link_libraries(${BOOST_TEST_TEST_PREFIX_NAME}doc-${_hh} boost::${BOOST_CURRENT_PACKAGE}::header)
   #target_include_directories(doc-${_hh} PUBLIC ${BOOST_TEST_ROOT_DIR}/include/)
-  set_target_properties(doc-${_hh} PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}/Doc examples")
+  set_target_properties(${BOOST_TEST_TEST_PREFIX_NAME}doc-${_hh} PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}/Doc examples")
 
   add_test(NAME boost.${BOOST_CURRENT_PACKAGE}::doc-${_hh}-test
-           COMMAND doc-${_hh})
+           COMMAND ${BOOST_TEST_TEST_PREFIX_NAME}doc-${_hh})
   get_filename_component(_ext ${_h} EXT)
   string(FIND ${_ext} "fail" _index_fail)
   if(${_index_fail} GREATER -1)
@@ -50,13 +52,13 @@ file(GLOB
      BOOST_TEST_UNITTESTS_DATASET
      ${BOOST_TEST_UNITTESTS_FOLDER}/test-organization-ts/datasets-test/*.cpp
      ${BOOST_TEST_UNITTESTS_FOLDER}/test-organization-ts/datasets-test/*.hpp)
-add_executable(boost_test_datasets ${BOOST_TEST_UNITTESTS_DATASET})
-target_include_directories(boost_test_datasets PUBLIC ${BOOST_TEST_ROOT_DIR}/include/)
-target_link_libraries(boost_test_datasets boost::test)
+add_executable(${BOOST_TEST_TEST_PREFIX_NAME}datasets ${BOOST_TEST_UNITTESTS_DATASET})
+target_include_directories(${BOOST_TEST_TEST_PREFIX_NAME}datasets PUBLIC ${BOOST_TEST_ROOT_DIR}/include/)
+target_link_libraries(${BOOST_TEST_TEST_PREFIX_NAME}datasets boost::test)
 #target_compile_definitions(boost_test_datasets PUBLIC "BOOST_TEST_DYN_LINK=1")
-set_target_properties(boost_test_datasets PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}/Unit tests")
+set_target_properties(${BOOST_TEST_TEST_PREFIX_NAME}datasets PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}/Unit tests")
 add_test(NAME bt-unittest-dataset
-         COMMAND boost_test_datasets)
+         COMMAND ${BOOST_TEST_TEST_PREFIX_NAME}datasets)
 
 
 ####

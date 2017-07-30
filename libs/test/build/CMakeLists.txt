@@ -78,6 +78,32 @@ foreach(_h IN LISTS BOOST_UTF_HEADERS)
 endforeach()
 endif()
 
+set(BOOST_TEST_DEPENDENCIES
+  boost::config
+  boost::system
+  boost::type_traits
+  boost::mpl
+  boost::function
+  boost::throw_exception # this one is indirect from boost::function
+  boost::integer # this one is indirect from boost::function
+  boost::static_assert # this one is indirect from boost::integer, but also here
+  boost::type_index # this one is indirect from boost::function
+  boost::preprocessor
+  boost::functional # indirect from type_index
+  boost::detail # indirect from functional
+  boost::utility
+  boost::smart_ptr
+  boost::bind # indirect from boost::function
+  boost::exception
+  boost::iterator
+  boost::move # indirect from boost::smart_ptr
+  boost::timer
+  boost::io
+  boost::algorithm
+  boost::range # indirect from boost::algorithm
+  boost::numeric
+)
+
 set(BOOST_UTF_SRC
     ../src/compiler_log_formatter.cpp
     ../src/debug.cpp
@@ -117,29 +143,8 @@ target_include_directories(
     $<INSTALL_INTERFACE:include>)
 target_link_libraries(boost_test
   PUBLIC
-    boost::config
-    boost::system
-    boost::type_traits
-    boost::mpl
-    boost::function
-    boost::throw_exception # this one is indirect from boost::function
-    boost::integer # this one is indirect from boost::function
-    boost::static_assert # this one is indirect from boost::integer, but also here
-    boost::type_index # this one is indirect from boost::function
-    boost::preprocessor
-    boost::functional # indirect from type_index
-    boost::detail # indirect from functional
-    boost::utility
-    boost::smart_ptr
-    boost::bind # indirect from boost::function
-    boost::exception
-    boost::iterator
-    boost::move # indirect from boost::smart_ptr
-    boost::timer
-    boost::io
-    boost::algorithm
-    boost::range # indirect from boost::algorithm
-  )
+  ${BOOST_TEST_DEPENDENCIES}
+)
 
 # defining the header only target
 add_library(boost_test_header_only INTERFACE)
@@ -152,6 +157,10 @@ target_compile_definitions(
   INTERFACE
     BOOST_TEST_NO_AUTO_LINK=1
     $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,SHARED_LIBRARY>:BOOST_TEST_DYN_LINK=1>
+)
+target_link_libraries(boost_test_header_only
+  INTERFACE
+  ${BOOST_TEST_DEPENDENCIES}
 )
 
 install(
