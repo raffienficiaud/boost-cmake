@@ -536,3 +536,11 @@ function(boost_add_subdirectories_in_order)
     list(LENGTH already_added_components length_added_components)
   endwhile()
 endfunction()
+
+function(boost_parse_headers_for_dependencies)
+  set(options )
+  set(oneValueArgs ROOT_PATH )
+  set(multiValueArgs ALL_PACKAGES)
+  cmake_parse_arguments(local_cmd "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+endfunction()
