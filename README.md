@@ -47,6 +47,7 @@ Those are meant to show some functional examples of real-case porting to cmake.
   nicely in an IDE
 * libraries not having a `boost-decl.cmake` / `CMakeLists.txt` are considered as
   header only and automatically added to the super project
+* the dependencies between the libraries are explicit, and there is no need for copying header files around.
 
 ## Todos (random order)
 
