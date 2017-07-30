@@ -12,19 +12,29 @@ Summary of actions for getting started:
     cd build
     cmake ..
 
+## How it works
+
+* each library or tool of Boost is a package
+* each package describes its components and, for each component, their dependencies
+* those descriptions are read by the super project `CMakeLists.txt`
+* the libraries and components are then included in the main project, in the right order
+
+The description of the components and their dependencies is made via a tiny text file, `boost-decl.cmake`
+that in a CMake format.
+
 To integrate a library:
 
-* create a folder `libs/<lib>`
-* a file in `libs/<lib>/build/boost-decl.cmake` should indicate the components and their dependencies wrt. other
-  package and components
-* a `CMakeLists.txt` should be included in each of the `libs/<lib>/<component>`, where the components are taken from the
+* in this repository, create a folder `libs/<lib>`
+* a file in `libs/<lib>/build/boost-decl.cmake` that indicates the components and their dependencies wrt. other
+  package and components. Take a look at the existing `boost-decl.cmake` in this repo for the expected format.
+* add a `CMakeLists.txt` in each of the `libs/<lib>/<component>`, where the `<components>` are taken from the
   `boost-decl.cmake` file above
 
-The current superproject `CMakeLists.txt` copies those `CMakeLists.txt` and `boost-decl.cmake` to their corresponding folders in the target libraries of Boost.
+The current superproject `CMakeLists.txt` copies those `CMakeLists.txt` and `boost-decl.cmake` to their corresponding folders in the target libraries of Boost, prior to running anything else.
 
 ## Ported libraries
 
-Those are meant to show some functional examples of real-case porting to cmake.
+Those are meant to show some functional and real-case examples for porting to cmake:
 
 * all header only libraries of boost
 * boost.system
