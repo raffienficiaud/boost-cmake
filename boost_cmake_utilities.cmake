@@ -5,6 +5,8 @@
 #    (See accompanying file LICENSE_1_0.txt or copy at
 #          http://www.boost.org/LICENSE_1_0.txt)
 
+include(CMakeParseArguments)
+
 #.rst:
 # .. command:: boost_get_all_libs
 #
@@ -26,7 +28,7 @@
 #     (optional) if set, the returned path will be relative to this path
 function(boost_get_all_libs)
 
-  set(options )
+  set(options SHOULD_HAVE_INCLUDE)
   set(oneValueArgs ROOT_PATH RELATIVE_PATH OUTPUT_VAR)
   set(multiValueArgs)
   cmake_parse_arguments(local_cmd "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -37,6 +39,10 @@ function(boost_get_all_libs)
 
   if("${local_cmd_OUTPUT_VAR}"  STREQUAL "")
     message(FATAL_ERROR "empty output variable given to boost_get_all_libs")
+  endif()
+
+  if("${local_cmd_SHOULD_HAVE_INCLUDE}"  STREQUAL "")
+    set(local_cmd_SHOULD_HAVE_INCLUDE FALSE)
   endif()
 
   set(glob_additional_options)
@@ -55,13 +61,66 @@ function(boost_get_all_libs)
     if(NOT IS_DIRECTORY "${local_cmd_RELATIVE_PATH}/${_lib}")
       continue()
     endif()
-    list(APPEND glob_discovered_trimmed ${_lib})
-    message(STATUS "Library ${_lib}")
+
+    if("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${local_cmd_RELATIVE_PATH}/${_lib}")
+      continue()
+    endif()
+
+    if(NOT (EXISTS "${local_cmd_RELATIVE_PATH}/${_lib}/include") AND "${local_cmd_SHOULD_HAVE_INCLUDE}")
+      # message(STATUS "Parsing subfolders of '${local_cmd_RELATIVE_PATH}/${_lib}'")
+      file(GLOB glob_discovered_secondary
+           LIST_DIRECTORIES true
+           ${glob_additional_options}
+           "${local_cmd_RELATIVE_PATH}/${_lib}/*"
+           )
+      message(STATUS "${local_cmd_RELATIVE_PATH}/${_lib}/ : ${glob_discovered_secondary}")
+      foreach(_lib_secondary IN LISTS glob_discovered_secondary)
+        if(NOT IS_DIRECTORY "${local_cmd_RELATIVE_PATH}/${_lib_secondary}")
+          continue()
+        endif()
+        if(NOT EXISTS "${local_cmd_RELATIVE_PATH}/${_lib_secondary}/include")
+          continue()
+        endif()
+        list(APPEND glob_discovered_trimmed ${_lib_secondary})
+        #message(STATUS "Library ${_lib_secondary}")
+      endforeach()
+    else()
+      list(APPEND glob_discovered_trimmed ${_lib})
+      #message(STATUS "Library ${_lib}")
+    endif()
+
   endforeach()
 
   set(${local_cmd_OUTPUT_VAR} ${glob_discovered_trimmed} PARENT_SCOPE)
 endfunction()
 
+
+# simple function that splits path/package:component into appropriate variables
+function(boost_get_package_component_from_name name path package component)
+  string(FIND "${name}" ":" _index REVERSE)
+  math(EXPR _indexp1 "${_index} + 1")
+  string(SUBSTRING "${name}" "0" "${_index}" _package_path)
+  string(SUBSTRING "${name}" "${_indexp1}" "-1" _component)
+
+  string(FIND "${_package_path}" "/" _index REVERSE)
+  if("${_index}" STREQUAL "-1")
+    set(_path "${_package_path}")
+    set(_package "${_package_path}")
+  else()
+    string(SUBSTRING "${_package_path}" "0" "${_index}" _path)
+    math(EXPR _indexp1 "${_index} + 1")
+    string(SUBSTRING "${_package_path}" "${_indexp1}" "-1" _package)
+    string(REPLACE "/" ":" _path_colons "${_path}")
+
+    set(_path "${_path}/${_package}")
+    set(_package "${_path}")
+    #set(_package "${_path_colons}:${_package}")
+  endif()
+
+  set(${path} ${_path} PARENT_SCOPE)
+  set(${package} ${_package} PARENT_SCOPE)
+  set(${component} ${_component} PARENT_SCOPE)
+endfunction()
 
 #.rst:
 # .. command:: boost_discover_packages_and_components
@@ -105,8 +164,10 @@ function(boost_discover_packages_and_components)
   set(all_components_dependency)
   foreach(_lib IN LISTS local_cmd_LIST_FOLDERS)
 
-    string(TOLOWER ${_lib} CURRENT_PACKAGE_NAME_LOWER)
-    string(TOUPPER ${_lib} CURRENT_PACKAGE_NAME)
+    # _lib can potentially contain a '/' and be "path": eg "numeric/ublas"
+    boost_get_package_component_from_name("${_lib}:" path package _component_dummy)
+    string(TOLOWER "${package}" CURRENT_PACKAGE_NAME_LOWER)
+    string(TOUPPER "${package}" CURRENT_PACKAGE_NAME)
 
     # if there is no description of the component, then we do this implictely
     # by adding the :build component and making doc/test appear as dependencies (if those exist)
@@ -147,12 +208,12 @@ function(boost_discover_packages_and_components)
       list(APPEND all_packages_and_components "${CURRENT_PACKAGE_NAME_LOWER}:build")
       if(FALSE)
         # for the moment: disabling as there are some libs containing a CMakeLists.txt that is breaking the full project
-      foreach(_current_component doc test)
-        if(EXISTS "${local_cmd_ROOT_PATH}/${_lib}/${_current_component}/CMakeLists.txt")
-          list(APPEND all_packages_and_components "${CURRENT_PACKAGE_NAME_LOWER}:${_current_component}")
-          list(APPEND all_components_dependency "${CURRENT_PACKAGE_NAME_LOWER}:${_current_component}:${CURRENT_PACKAGE_NAME_LOWER}:build")
-        endif()
-      endforeach()
+        foreach(_current_component doc test)
+          if(EXISTS "${local_cmd_ROOT_PATH}/${_lib}/${_current_component}/CMakeLists.txt")
+            list(APPEND all_packages_and_components "${CURRENT_PACKAGE_NAME_LOWER}:${_current_component}")
+            list(APPEND all_components_dependency "${CURRENT_PACKAGE_NAME_LOWER}:${_current_component}:${CURRENT_PACKAGE_NAME_LOWER}:build")
+          endif()
+        endforeach()
       endif()
     endif()
   endforeach()
@@ -178,9 +239,9 @@ function(boost_package_get_all_components )
   string(TOLOWER ${local_cmd_PACKAGE} CURRENT_PACKAGE_NAME_LOWER)
   foreach(_comp IN LISTS local_cmd_ALL_COMPONENTS)
     string(FIND "${_comp}" "${CURRENT_PACKAGE_NAME_LOWER}:" _index)
-    if("${_index}" EQUAL "0")
+    if(NOT "${_index}" EQUAL "0")
       string(LENGTH "${CURRENT_PACKAGE_NAME_LOWER}:" _length)
-      string(SUBSTRING "${_comp}" ${_length} "-1" _package_component)
+      string(SUBSTRING "${_comp}" "${_length}" "-1" _package_component)
       list(APPEND all_components ${_package_component})
     endif()
   endforeach()
@@ -208,25 +269,15 @@ function(boost_package_get_all_dependencies )
   string(TOLOWER ${local_cmd_COMPONENT} CURRENT_COMPONENT_NAME_LOWER)
   foreach(_comp IN LISTS local_cmd_ALL_DEPENDENCIES)
     string(FIND "${_comp}" "${CURRENT_COMPONENT_NAME_LOWER}:" _index)
-    #message("haar haar ${CURRENT_COMPONENT_NAME_LOWER} '${_comp}' ${_index}")
     if("${_index}" EQUAL "0")
       string(LENGTH "${CURRENT_COMPONENT_NAME_LOWER}:" _length)
-      string(SUBSTRING "${_comp}" ${_length} "-1" _component_dependencies)
+      string(SUBSTRING "${_comp}" "${_length}" "-1" _component_dependencies)
       list(APPEND all_dependencies ${_component_dependencies})
     endif()
   endforeach()
   set(${local_cmd_OUTPUT_VAR} ${all_dependencies} PARENT_SCOPE)
 endfunction()
 
-# simple function that splits package:component into appropriate variables
-function(boost_get_package_component_from_name name package component)
-  string(FIND ${name} ":" _index)
-  math(EXPR _indexp1 "${_index} + 1")
-  string(SUBSTRING "${name}" "0" "${_index}" package_lower)
-  string(SUBSTRING "${name}" "${_indexp1}" "-1" component_lower)
-  set(${package} ${package_lower} PARENT_SCOPE)
-  set(${component} ${component_lower} PARENT_SCOPE)
-endfunction()
 
 
 #.rst:
@@ -242,15 +293,26 @@ endfunction()
 #    variable containing all the dependencies (discovered by :command:`boost_discover_packages_and_components`)
 #  ``ALL_COMPONENTS``
 #    variable containing all the components (discovered by :command:`boost_discover_packages_and_components`)
+#  ``VISIBLE_HEADER_ONLY``
+#    an option that, if set, will create a custom target for header only libraries such that their sources
+#    are available in an IDE
+#  ``EXCLUDE_FROM_ALL_COMPONENTS``
+#    indicates the components to be excluded (eg. doc, test) by the default build
 #
 # When a component is added, the variables ``BOOST_CURRENT_PACKAGE`` and ``BOOST_CURRENT_COMPONENT`` are defined
 # to reflect the current package/component being added.
 #
 function(boost_add_subdirectories_in_order)
-  set(options )
+  set(options VISIBLE_HEADER_ONLY)
   set(oneValueArgs COMPONENT ROOT_PATH )
   set(multiValueArgs ALL_DEPENDENCIES ALL_COMPONENTS EXCLUDE_FROM_ALL_COMPONENTS)
   cmake_parse_arguments(local_cmd "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  set(lower_case_component_to_exclude)
+  foreach(_element IN LISTS local_cmd_EXCLUDE_FROM_ALL_COMPONENTS)
+    string(TOLOWER ${_element} _lower)
+    list(APPEND lower_case_component_to_exclude "${_lower}")
+  endforeach()
 
   # todo: check uniqueness
   list(LENGTH local_cmd_ALL_COMPONENTS length_components)
@@ -267,7 +329,7 @@ function(boost_add_subdirectories_in_order)
         continue()
       endif()
 
-      message("Checking component ${_component}")
+      #message("Checking component ${_component}")
       boost_package_get_all_dependencies(
         COMPONENT ${_component}
         ALL_DEPENDENCIES ${local_cmd_ALL_DEPENDENCIES}
@@ -282,7 +344,7 @@ function(boost_add_subdirectories_in_order)
         endif()
 
         if(NOT (${_dependency} IN_LIST already_added_components))
-          message("'${_dependency}' not yet added")
+          #message("'${_dependency}' not yet added")
           set(component_dependencies_all_added FALSE)
           break()
         endif()
@@ -290,26 +352,43 @@ function(boost_add_subdirectories_in_order)
 
       if(${component_dependencies_all_added})
         list(APPEND already_added_components ${_component})
-        boost_get_package_component_from_name(${_component} current_package current_component)
-        message(STATUS "Boost:component: adding ${current_package}/${current_component}")
+        boost_get_package_component_from_name("${_component}" path current_package current_component)
+        message(STATUS "Boost:component: adding ${current_package}:${current_component} from ${path}")
 
         set(BOOST_CURRENT_PACKAGE "${current_package}")
         set(BOOST_CURRENT_COMPONENT "${current_component}")
+        string(REPLACE "/" "_" current_package_no_slash "${current_package}")
 
-        if(EXISTS "${local_cmd_ROOT_PATH}/${current_package}/${current_component}/CMakeLists.txt")
+        if(EXISTS "${local_cmd_ROOT_PATH}/${path}/${current_component}/CMakeLists.txt")
           # in case we have a proper CMakeLists.txt, we include it
-          add_subdirectory(${local_cmd_ROOT_PATH}/${current_package}/${current_component} tmp_boost_${current_package}_${current_component})
+          set(add_subdirectory_options)
+          if("${current_component}" IN_LIST lower_case_component_to_exclude)
+            set(add_subdirectory_options EXCLUDE_FROM_ALL)
+          endif()
+          add_subdirectory(${local_cmd_ROOT_PATH}/${path}/${current_component}
+                           tmp_boost_${current_package}_${current_component}
+                           ${add_subdirectory_options})
         else()
           # in case we do not have a cmakelists.txt, we simulate a header only
-          message(STATUS "[header only] boost_${BOOST_CURRENT_PACKAGE}_header_only")
-          add_library(boost_${BOOST_CURRENT_PACKAGE}_header_only INTERFACE)
-          target_include_directories(boost_${BOOST_CURRENT_PACKAGE}_header_only
+          message(STATUS "-- [header only]")
+          add_library(boost_${current_package_no_slash}_header_only INTERFACE)
+          target_include_directories(boost_${current_package_no_slash}_header_only
             INTERFACE
-              $<BUILD_INTERFACE:${local_cmd_ROOT_PATH}/${current_package}/include>
-              $<INSTALL_INTERFACE:include>)
-          add_library(boost::${BOOST_CURRENT_PACKAGE} ALIAS boost_${BOOST_CURRENT_PACKAGE}_header_only)
-          add_library(boost::${BOOST_CURRENT_PACKAGE}::header ALIAS boost_${BOOST_CURRENT_PACKAGE}_header_only)
-          #set_target_properties(boost_${BOOST_CURRENT_PACKAGE}_header_only PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}")
+              $<BUILD_INTERFACE:${local_cmd_ROOT_PATH}/${path}/include>
+              $<INSTALL_INTERFACE:${path}/include>)
+          add_library(boost::${current_package_no_slash} ALIAS boost_${current_package_no_slash}_header_only)
+          add_library(boost::${current_package_no_slash}::header ALIAS boost_${current_package_no_slash}_header_only)
+
+          if(${local_cmd_VISIBLE_HEADER_ONLY})
+            file(GLOB_RECURSE
+                 _current_library_headers
+                 ${local_cmd_ROOT_PATH}/${path}/include/*)
+            add_custom_target(
+              boost_${current_package_no_slash}
+              SOURCES ${_current_library_headers})
+            set_target_properties(boost_${current_package_no_slash}
+              PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}")
+          endif()
         endif()
       endif()
 

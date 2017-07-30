@@ -39,7 +39,7 @@ set(BOOST_LIB_${_current_package}_COMPONENTS_BUILD_DEPENDENCY
   "io:build"
   "algorithm:build"
   "range:build"
-  "numeric:build"
+  "numeric/conversion:build"
 )
 set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY ) #"quickbook:core")
 set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY "test:build")

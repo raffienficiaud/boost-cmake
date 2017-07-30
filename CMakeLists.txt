@@ -8,7 +8,6 @@
 cmake_minimum_required(VERSION 3.4)
 
 project(Boost)
-
 enable_testing()
 
 set(BOOST_ROOT_FOLDER ${CMAKE_CURRENT_LIST_DIR})
@@ -16,6 +15,12 @@ set(BOOST_ROOT_FOLDER ${CMAKE_CURRENT_LIST_DIR})
 
 # The utility functions
 include(tools/boost-cmake/boost_cmake_utilities.cmake)
+
+option(BOOST_BUILD_DOC  "Indicates if the documentation should be generated" OFF)
+option(BOOST_BUILD_TEST "Indicates if the tests should be generated" OFF)
+option(BOOST_CREATE_VISIBLE_HEADER_ONLY "Makes the header only libraries visible (on eg. IDE) with an associated target" OFF)
+
+
 
 # get all tools
 boost_get_all_libs(
@@ -27,7 +32,8 @@ boost_get_all_libs(
 boost_get_all_libs(
   ROOT_PATH "${BOOST_ROOT_FOLDER}/libs"
   RELATIVE_PATH "${BOOST_ROOT_FOLDER}/libs"
-  OUTPUT_VAR boost_all_library)
+  OUTPUT_VAR boost_all_library
+  SHOULD_HAVE_INCLUDE)
 
 # temporary -- patching all <boost>/libs/<library> with the files in "tools/boost-cmake/libs/"
 boost_get_all_libs(
@@ -77,13 +83,28 @@ boost_package_get_all_dependencies(
   OUTPUT_VAR all_test_build_dependencies
 )
 
-message("test components are ${all_test_components}")
-message("test:build depedencies are ${all_test_build_dependencies}")
+# pass options:
+set(additional_options)
+if(NOT "${BOOST_BUILD_DOC}")
+  set(additional_options ${additional_options} "doc")
+endif()
+
+if(NOT "${BOOST_BUILD_TEST}")
+  set(additional_options ${additional_options} "test")
+endif()
+
+if(NOT "${additional_options}" STREQUAL "")
+  set(additional_options EXCLUDE_FROM_ALL_COMPONENTS ${additional_options})
+endif()
+
+if(${BOOST_CREATE_VISIBLE_HEADER_ONLY})
+  set(additional_options ${additional_options} VISIBLE_HEADER_ONLY)
+endif()
 
 # adding subprojects
 boost_add_subdirectories_in_order(
   ROOT_PATH "${BOOST_ROOT_FOLDER}/libs/"
   ALL_COMPONENTS ${BOOST_ALL_PACKAGES_COMPONENTS}
   ALL_DEPENDENCIES ${BOOST_COMPONENTS_DEPENDENCIES}
-  EXCLUDE_FROM_ALL_COMPONENTS "doc" "test"
+  ${additional_options}
 )

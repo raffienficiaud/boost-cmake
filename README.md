@@ -20,7 +20,7 @@ Summary of actions for getting started:
 * the libraries and components are then included in the main project, in the right order
 
 The description of the components and their dependencies is made via a tiny text file, `boost-decl.cmake`
-that in a CMake format.
+that is in a CMake format.
 
 To integrate a library:
 
@@ -58,6 +58,13 @@ Those are meant to show some functional and real-case examples for porting to cm
 * libraries not having a `boost-decl.cmake` / `CMakeLists.txt` are considered as
   header only and automatically added to the super project
 * the dependencies between the libraries are explicit, and there is no need for copying header files around.
+
+## CMake options
+
+* `BOOST_BUILD_DOC` if set to `ON`, will build the documentation as part of the default build (defaults to `OFF`)
+* `BOOST_BUILD_TEST` if set to `ON`, will build the test as part of the default build (defaults to `OFF`)
+* `BOOST_CREATE_VISIBLE_HEADER_ONLY` if set to `ON`, will create a target for header only libraries that are
+  visible on the IDE (as custom commands)
 
 ## Todos (random order)
 
