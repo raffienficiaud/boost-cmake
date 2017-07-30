@@ -46,29 +46,64 @@ Those are meant to show some functional and real-case examples for porting to cm
 (in random order)
 
 * handles order of declaration of targets, inter dependencies
-* there is never direct inclusion from one `CMakeLists.txt` to another one
+* there is **never direct inclusion** from one `CMakeLists.txt` to another one
 * the libraries, their documentation and the corresponding tests are decoupled, as
-  the current `b2` system is doing
+  the current `b2` system is doing. This should allow for easier redistribution (discarding the packaging
+  of doc and tests, the main `build/CMakeLists.txt` staying standalone)
 * each `CMakeLists.txt` makes no assumption of an existing super project: they are
-  written without the help of any external function or CMake package
+  written without the help of any external function or CMake package. This is again to ease
+  modularity and redistribution
 * only the two variables `${BOOST_CURRENT_PACKAGE}` and `${BOOST_CURRENT_COMPONENT}`
   are defined when a `CMakeLists.txt` is included. This is mostly for creating
   a convenient `ALIAS` target (for eg. naming convention) or to render things
   nicely in an IDE
 * libraries not having a `boost-decl.cmake` / `CMakeLists.txt` are considered as
-  header only and automatically added to the super project
-* the dependencies between the libraries are explicit, and there is no need for copying header files around.
+  header only and automatically added to the super project, which lowers the development/porting
+* the dependencies between the libraries are explicit, which is a **good** thing
+* there is no need for copying header files around: the files stay in their original library/submodule/location
+  and their location is propagated to dependent project
+*
 
 ## CMake options
+Those are high level options passed to cmake. For example, to have all files for header only libraries, directly in your IDE:
+
+```
+# same prelude as above
+cmake -G <your generator> -DBOOST_CREATE_VISIBLE_HEADER_ONLY=ON
+```
+
+### Available options
 
 * `BOOST_BUILD_DOC` if set to `ON`, will build the documentation as part of the default build (defaults to `OFF`)
 * `BOOST_BUILD_TEST` if set to `ON`, will build the test as part of the default build (defaults to `OFF`)
 * `BOOST_CREATE_VISIBLE_HEADER_ONLY` if set to `ON`, will create a target for header only libraries that are
   visible on the IDE (as custom commands)
 
+## Naming conventions
+Some naming conventions are under development. Currently 3 possible components:
+
+* `build`: contains the main build targets
+* `doc`: contains the documentation targets
+* `test`: contains the test targets
+
+### Build
+
+* `boost::<package>` is an alias to the default build artifact of package `<package>`
+* `boost::<package>::<variant>` is an alias to a specific variant of package `<package>`, if defined
+  `<variant>` can be
+
+  * `header`
+
+### Tests
+
+* the tests binary file can take any name
+* the declared test name should allow for easy subset filtering from `ctest`
+* a possible convention would be `boost_<package>__<name-of-test>`
+* `boost::<package>__build_test` is an alias for building the tests, in case those are not part of the default build
+
+### Documentation
+
 ## Todos (random order)
 
-* components that are not "build" should not be built by default
 * filter the package/component that is required by the developer
-* include header-only files as custom targets (option in the IDE)
 * being able to specify which component should be discarded (eg. doc and test turned off)
