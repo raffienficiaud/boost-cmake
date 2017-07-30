@@ -120,7 +120,26 @@ target_link_libraries(boost_test
     boost::config
     boost::system
     boost::type_traits
-    boost::mpl)
+    boost::mpl
+    boost::function
+    boost::throw_exception # this one is indirect from boost::function
+    boost::integer # this one is indirect from boost::function
+    boost::static_assert # this one is indirect from boost::integer, but also here
+    boost::type_index # this one is indirect from boost::function
+    boost::preprocessor
+    boost::functional # indirect from type_index
+    boost::detail # indirect from functional
+    boost::utility
+    boost::smart_ptr
+    boost::bind # indirect from boost::function
+    boost::exception
+    boost::iterator
+    boost::move # indirect from boost::smart_ptr
+    boost::timer
+    boost::io
+    boost::algorithm
+    boost::range # indirect from boost::algorithm
+  )
 
 # defining the header only target
 add_library(boost_test_header_only INTERFACE)

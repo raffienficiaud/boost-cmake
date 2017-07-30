@@ -267,8 +267,7 @@ function(boost_add_subdirectories_in_order)
         continue()
       endif()
 
-      #message(STATUS "Checking component ${_component}")
-
+      message("Checking component ${_component}")
       boost_package_get_all_dependencies(
         COMPONENT ${_component}
         ALL_DEPENDENCIES ${local_cmd_ALL_DEPENDENCIES}
@@ -283,7 +282,7 @@ function(boost_add_subdirectories_in_order)
         endif()
 
         if(NOT (${_dependency} IN_LIST already_added_components))
-          message("${_dependency} not in '${already_added_components}'")
+          message("'${_dependency}' not yet added")
           set(component_dependencies_all_added FALSE)
           break()
         endif()
