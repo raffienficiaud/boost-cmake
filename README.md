@@ -1,7 +1,7 @@
 # boost-cmake
 An attempt to move on with boost+cmake
 
-This repository should be checked out in `<boost-root>/tools/boost-cmake`, and the `CMakeLists.txt` contained there be copied to the <boost-root> folder.
+This repository should be checked out in `<boost-root>/tools/boost-cmake`, and the `CMakeLists.txt` contained there be copied to the `<boost-root>` folder.
 Summary of actions for getting started:
 
     cd <boost_root>/tools
@@ -111,5 +111,6 @@ Some naming conventions are under development. Currently 3 possible components:
 
 ## Todos (random order)
 
-* filter the package/component that is required by the developer
-* being able to specify which component should be discarded (eg. doc and test turned off)
+* port quickbook
+* port filesystem and system tests
+* port regex
