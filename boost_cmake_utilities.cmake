@@ -73,7 +73,7 @@ function(boost_get_all_libs)
            ${glob_additional_options}
            "${local_cmd_RELATIVE_PATH}/${_lib}/*"
            )
-      message(STATUS "${local_cmd_RELATIVE_PATH}/${_lib}/ : ${glob_discovered_secondary}")
+      #message(STATUS "${local_cmd_RELATIVE_PATH}/${_lib}/ : ${glob_discovered_secondary}")
       foreach(_lib_secondary IN LISTS glob_discovered_secondary)
         if(NOT IS_DIRECTORY "${local_cmd_RELATIVE_PATH}/${_lib_secondary}")
           continue()
@@ -298,6 +298,8 @@ endfunction()
 #    are available in an IDE
 #  ``EXCLUDE_FROM_ALL_COMPONENTS``
 #    indicates the components to be excluded (eg. doc, test) by the default build
+#  ``SUBSET_TO``
+#    if defined, will restrict the set of all component to the provided list and all their dependecies (transitive to their parent)
 #
 # When a component is added, the variables ``BOOST_CURRENT_PACKAGE`` and ``BOOST_CURRENT_COMPONENT`` are defined
 # to reflect the current package/component being added.
@@ -305,7 +307,7 @@ endfunction()
 function(boost_add_subdirectories_in_order)
   set(options VISIBLE_HEADER_ONLY)
   set(oneValueArgs COMPONENT ROOT_PATH )
-  set(multiValueArgs ALL_DEPENDENCIES ALL_COMPONENTS EXCLUDE_FROM_ALL_COMPONENTS)
+  set(multiValueArgs ALL_DEPENDENCIES ALL_COMPONENTS EXCLUDE_FROM_ALL_COMPONENTS SUBSET_TO)
   cmake_parse_arguments(local_cmd "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   set(lower_case_component_to_exclude)
@@ -314,8 +316,34 @@ function(boost_add_subdirectories_in_order)
     list(APPEND lower_case_component_to_exclude "${_lower}")
   endforeach()
 
-  # todo: check uniqueness
-  list(LENGTH local_cmd_ALL_COMPONENTS length_components)
+  set(subset_component_to_add)
+  if("${local_cmd_SUBSET_TO}" STREQUAL "")
+    set(subset_component_to_add ${local_cmd_ALL_COMPONENTS})
+  else()
+    list(REMOVE_DUPLICATES local_cmd_SUBSET_TO)
+    message(STATUS "Subset of components: '${local_cmd_SUBSET_TO}'")
+    while(NOT "${local_cmd_SUBSET_TO}" STREQUAL "")
+      #message(STATUS "local_cmd_SUBSET_TO: ${local_cmd_SUBSET_TO}")
+      list(GET local_cmd_SUBSET_TO 0 current_component)
+      list(REMOVE_AT local_cmd_SUBSET_TO 0)
+      list(APPEND subset_component_to_add ${current_component})
+      boost_package_get_all_dependencies(
+        COMPONENT ${current_component}
+        ALL_DEPENDENCIES ${local_cmd_ALL_DEPENDENCIES}
+        OUTPUT_VAR current_component_dependencies
+      )
+      foreach(_component IN LISTS current_component_dependencies)
+        if(${_component} IN_LIST subset_component_to_add)
+          continue()
+        endif()
+        list(APPEND local_cmd_SUBSET_TO ${_component})
+      endforeach()
+    endwhile()
+  endif()
+  message(STATUS "Components to build: '${subset_component_to_add}'")
+
+  list(REMOVE_DUPLICATES subset_component_to_add)
+  list(LENGTH subset_component_to_add length_components)
 
   set(already_added_components)
   set(length_added_components 0)
@@ -323,7 +351,7 @@ function(boost_add_subdirectories_in_order)
   # best would be to have a recursive algorithm instead
   while("${length_added_components}" LESS "${length_components}")
     # adding components in order
-    foreach(_component IN LISTS local_cmd_ALL_COMPONENTS)
+    foreach(_component IN LISTS subset_component_to_add)
 
       if(${_component} IN_LIST already_added_components)
         continue()

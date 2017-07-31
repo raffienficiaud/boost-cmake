@@ -74,6 +74,12 @@ cmake -G <your generator> -DBOOST_CREATE_VISIBLE_HEADER_ONLY=ON
 
 ### Available options
 
+* `BOOST_WITH_COMPONENT`: restricts the global project to this set of coma separated components, and the union of all their
+  parent dependencies. Example
+
+      # same prelude as above
+      cmake -DBOOST_WITH_COMPONENT=test:build ..
+
 * `BOOST_BUILD_DOC` if set to `ON`, will build the documentation as part of the default build (defaults to `OFF`)
 * `BOOST_BUILD_TEST` if set to `ON`, will build the test as part of the default build (defaults to `OFF`)
 * `BOOST_CREATE_VISIBLE_HEADER_ONLY` if set to `ON`, will create a target for header only libraries that are

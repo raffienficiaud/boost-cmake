@@ -20,7 +20,9 @@ option(BOOST_BUILD_DOC  "Indicates if the documentation should be generated" OFF
 option(BOOST_BUILD_TEST "Indicates if the tests should be generated" OFF)
 option(BOOST_CREATE_VISIBLE_HEADER_ONLY "Makes the header only libraries visible (on eg. IDE) with an associated target" OFF)
 
-
+if("${BOOST_WITH_COMPONENT}")
+  set(BOOST_WITH_COMPONENT "" "A list of coma separated components to build" CACHE STRING)
+endif()
 
 # get all tools
 boost_get_all_libs(
@@ -101,10 +103,16 @@ if(${BOOST_CREATE_VISIBLE_HEADER_ONLY})
   set(additional_options ${additional_options} VISIBLE_HEADER_ONLY)
 endif()
 
+if(NOT "${BOOST_WITH_COMPONENT}" STREQUAL "")
+  string(REPLACE "," ";" arg_subset_to ${BOOST_WITH_COMPONENT})
+  set(additional_options SUBSET_TO ${arg_subset_to})
+endif()
+
 # adding subprojects
 boost_add_subdirectories_in_order(
   ROOT_PATH "${BOOST_ROOT_FOLDER}/libs/"
   ALL_COMPONENTS ${BOOST_ALL_PACKAGES_COMPONENTS}
   ALL_DEPENDENCIES ${BOOST_COMPONENTS_DEPENDENCIES}
   ${additional_options}
+  #SUBSET_TO "test:build"
 )
