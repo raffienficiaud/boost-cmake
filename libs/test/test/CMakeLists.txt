@@ -15,6 +15,8 @@ if(NOT (TARGET boost::test))
   message(FATAL_ERROR "This cmake file can only be included after the boost::test:build component")
 endif()
 
+add_definitions(-DBOOST_ALL_NO_LIB)
+
 #message(AUTHOR_WARNING "BOOST_CURRENT_PACKAGE: ${BOOST_CURRENT_PACKAGE}")
 #message(AUTHOR_WARNING "BOOST_CURRENT_COMPONENT: ${BOOST_CURRENT_COMPONENT}")
 
@@ -26,11 +28,13 @@ set(BOOST_TEST_TEST_PREFIX_NAME boost_test__test_)
 # documentation tests
 file(GLOB_RECURSE
      BOOST_UTF_DOC_EXAMPLES
-     ../doc/examples/*.cpp)
+     ${BOOST_TEST_UNITTESTS_FOLDER}/../doc/examples/*.cpp)
 
 foreach(_h IN LISTS BOOST_UTF_DOC_EXAMPLES)
+  
   get_filename_component(_hh ${_h} NAME_WE)
   add_executable(${BOOST_TEST_TEST_PREFIX_NAME}doc-${_hh} ${_h} ../doc/examples/${_hh}.output)
+  #message(FATAL_ERROR "${BOOST_TEST_TEST_PREFIX_NAME}doc-${_hh} in boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}/Doc examples")
   target_link_libraries(${BOOST_TEST_TEST_PREFIX_NAME}doc-${_hh} boost::${BOOST_CURRENT_PACKAGE}::header)
   #target_include_directories(doc-${_hh} PUBLIC ${BOOST_TEST_ROOT_DIR}/include/)
   set_target_properties(${BOOST_TEST_TEST_PREFIX_NAME}doc-${_hh} PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}/Doc examples")
