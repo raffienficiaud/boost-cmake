@@ -9,7 +9,7 @@
 # This cmake file defines the tests of the boost.test library
 # It is not meant to be included independently of the boost superproject cmake.
 
-project(boost:test:test)
+project(boost.test.test)
 
 if(NOT (TARGET boost::test))
   message(FATAL_ERROR "This cmake file can only be included after the boost::test:build component")
