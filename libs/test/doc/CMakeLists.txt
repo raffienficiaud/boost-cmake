@@ -22,9 +22,9 @@ set_property(TARGET quickbook PROPERTY FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${
 
 
 
-Commands for quickbook
-produced by
-../../../b2 -n -d+2 -sDOCBOOK_XSL_DIR=/Users/raffi/Downloads/docbook-xsl-1.78.1/ -sDOCBOOK_DTD_DIR=/Users/raffi/Downloads/docbook-xml-4.2/
+# Commands for quickbook
+# produced by
+# ../../../b2 -n -d+2 -sDOCBOOK_XSL_DIR=/Users/raffi/Downloads/docbook-xsl-1.78.1/ -sDOCBOOK_DTD_DIR=/Users/raffi/Downloads/docbook-xml-4.2/
 
 
 set(_quickbook_source_dir "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -97,6 +97,8 @@ endfunction()
 # * ``DOXYGEN_CONFIGURATION_FILE`` indicates that the quickbook has a reference to a reference section extracted from
 #   Doxygen. This variable is either empty (no Doxygen) or points to the configuration file
 # * ``DOXYGEN_SOURCE_FILES`` the source files (the Doxygen documentation will be regenerated when any of those files has been changed)
+# * ``DOCUMENTATION_ENTRY`` the file used as an entry point for quickbook
+#
 function(quickbook)
 
   # check for what cases this is needed
@@ -110,9 +112,9 @@ function(quickbook)
     message(FATAL_ERROR "Cannot find the 'xsltproc' program")
   endif()
 
-
+  # parsing
   set(options )
-  set(oneValueArgs COMPONENT DOXYGEN_CONFIGURATION_FILE)
+  set(oneValueArgs COMPONENT DOXYGEN_CONFIGURATION_FILE DOCUMENTATION_ENTRY)
   set(multiValueArgs DOXYGEN_SOURCE_FILES)
 
   set(prefix _quickbook_target)
@@ -193,6 +195,7 @@ function(quickbook)
     )
 
     # now we need to do this
+    # this is referenced in the test.qbk file
     cp "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.boostbook"  "doxygen_reference_generated_doc.xml"
 
     list(APPEND all_dependencies
@@ -200,16 +203,29 @@ function(quickbook)
       "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}/index.xml")
   endif()
 
-  # quickbook
+
+  # main file
+  if(NOT TARGET quickbook)
+    message(FATAL_ERROR "'quickbook' target should have been declared before calling this function")
+  endif()
+
+  # TODO: quickbook
   add_custom_command(
-    OUTPUT "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}"
-    COMMAND "${DOXYGEN_EXECUTABLE}" "${doxygen_configured_file}"
-    DEPENDS "${${prefix}_DOXYGEN_SOURCE_FILES}" # check if filled properly
+    COMMAND
+      quickbook \
+        -I"../../.."
+        --output-file="${output_folder}/${${prefix}_COMPONENT}_doc.xml" \
+        "${${prefix}_DOCUMENTATION_ENTRY}"
   )
+
+
+  # TODO: all the parameter of the xsltproc command should be extracted from the
+  # call multipleargs part (the ones below have been generated from Jamfile.v2)
+  # NOTE: the image part does not appear in the command line
 
   add_custom_command(
     OUTPUT
-      XXXXXXX "${output_folder}/${${prefix}_COMPONENT}_doc.docbook"
+      "${output_folder}/${${prefix}_COMPONENT}_doc.docbook"
     COMMAND
       ${CMAKE_COMMAND} \
         -E env XML_CATALOG_FILES="${catalog_file}" \
@@ -225,14 +241,16 @@ function(quickbook)
         --stringparam toc.section.depth "10" \
         --xinclude -o "${output_folder}/${${prefix}_COMPONENT}_doc.docbook"
         "${BOOST_ROOT_FOLDER}/tools/boostbook/xsl/docbook.xsl"
-        "../../../bin.v2/libs/test/doc/darwin-4.2.1/debug/test_doc.xml"
-
+        "${output_folder}/${${prefix}_COMPONENT}_doc.xml"
+    DEPENDS
+      "${output_folder}/${${prefix}_COMPONENT}_doc.xml"
   )
-xslt-xsltproc-dir html/standalone_HTML.manifest
+
+  xslt-xsltproc-dir html/standalone_HTML.manifest # TODO check this file exists after generation
 
   add_custom_command(
     OUTPUT
-      XXXXXXX "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.boostbook"
+      html/standalone_HTML.manifest #### TODO adapt that thing
     COMMAND
       ${CMAKE_COMMAND} \
         -E env XML_CATALOG_FILES="${catalog_file}" \
@@ -250,84 +268,12 @@ xslt-xsltproc-dir html/standalone_HTML.manifest
         --xinclude -o "html/"
         "${BOOST_ROOT_FOLDER}/tools/boostbook/xsl/html.xsl"
         "${output_folder}/${${prefix}_COMPONENT}_doc.docbook"
+    DEPENDS
+      "${output_folder}/${${prefix}_COMPONENT}_doc.docbook"
+      # adding css as well if any?
    )
 
+  add_custom_target(${${prefix}_COMPONENT}_quickbook
+    COMMAND some commands)
+
 endfunction()
-
-
-
-
-
-text-action ../../../bin.v2/boostbook_catalog.xml
-
-    cat "/var/folders/dx/_77h3khd2456_68z_ygfn6pc0000gp/T//jam2515a269.000" > "../../../bin.v2/boostbook_catalog.xml"
-
-
-
-
-quickbook.quickbook-to-boostbook ../../../bin.v2/libs/test/doc/darwin-4.2.1/debug/test_doc.xml
-
-    "../../../bin.v2/tools/quickbook/src/darwin-4.2.1/release/link-static/quickbook" -I"../../.."     --output-file="../../../bin.v2/libs/test/doc/darwin-4.2.1/debug/test_doc.xml" "test.qbk"
-
-common.mkdir ../../../bin.v2/libs/test/doc/none
-
-        mkdir -p "../../../bin.v2/libs/test/doc/none"
-
-common.mkdir ../../../bin.v2/libs/test/doc/none/darwin-4.2.1
-
-        mkdir -p "../../../bin.v2/libs/test/doc/none/darwin-4.2.1"
-
-common.mkdir ../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug
-
-        mkdir -p "../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug"
-
-
-
-###############################################
-###############################################
-###############################################
-
-
-text-action ../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xml.doxyfile
-
-    cat "/var/folders/dx/_77h3khd2456_68z_ygfn6pc0000gp/T//jam2515a26a.000" > "../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xml.doxyfile"
-
-doxygen-action ../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xml.xml-dir
-
-    rm -f "../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xml/*.xml" & "doxygen" "../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xml.doxyfile" && echo "Stamp
-ed" > "../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xml.xml-dir"
-
-xslt-xsltproc ../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xml.doxygen
-
-    XML_CATALOG_FILES="../../../bin.v2/boostbook_catalog.xml"
-export XML_CATALOG_FILES
- "xsltproc" --stringparam doxygen.xml.path "/Users/raffi/Personnel/boost_github/bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xml" --xinclude -o "../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxy
-gen_reference_generated_doc-xml.doxygen" "/Users/raffi/Personnel/boost_github/tools/boostbook/xsl/doxygen/collect.xsl" "/Users/raffi/Personnel/boost_github/bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xm
-l/index.xml"
-
-xslt-xsltproc ../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xml.boostbook
-
-    XML_CATALOG_FILES="../../../bin.v2/boostbook_catalog.xml"
-export XML_CATALOG_FILES
- "xsltproc" --stringparam boost.defaults "Boost" --xinclude -o "../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xml.boostbook" "/Users/raffi/Personnel/boost_github/tools/boostbook/xsl/doxygen/doxyg
-en2boostbook.xsl" "../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xml.doxygen"
-
-common.copy doxygen_reference_generated_doc.xml
-
-    cp "../../../bin.v2/libs/test/doc/none/darwin-4.2.1/debug/doxygen_reference_generated_doc-xml.boostbook"  "doxygen_reference_generated_doc.xml"
-
-xslt-xsltproc ../../../bin.v2/libs/test/doc/darwin-4.2.1/debug/test_doc.docbook
-
-    XML_CATALOG_FILES="../../../bin.v2/boostbook_catalog.xml"
-export XML_CATALOG_FILES
- "xsltproc" --stringparam boost.defaults "Boost" --stringparam boost.root "../../../.." --stringparam chapter.autolabel "0" --stringparam chunk.first.sections "1" --stringparam chunk.section.depth "4" --stringparam generate.section.toc
-.level "3" --stringparam html.stylesheet "boostbook.css" --stringparam toc.max.depth "3" --stringparam toc.section.depth "10" --xinclude -o "../../../bin.v2/libs/test/doc/darwin-4.2.1/debug/test_doc.docbook" "/Users/raffi/Personnel/boo
-st_github/tools/boostbook/xsl/docbook.xsl" "../../../bin.v2/libs/test/doc/darwin-4.2.1/debug/test_doc.xml"
-
-xslt-xsltproc-dir html/standalone_HTML.manifest
-
-    XML_CATALOG_FILES="../../../bin.v2/boostbook_catalog.xml"
-export XML_CATALOG_FILES
- "xsltproc" --stringparam boost.defaults "Boost" --stringparam boost.root "../../../.." --stringparam chapter.autolabel "0" --stringparam chunk.first.sections "1" --stringparam chunk.section.depth "4" --stringparam generate.section.toc
-.level "3" --stringparam html.stylesheet "boostbook.css" --stringparam manifest "standalone_HTML.manifest" --stringparam toc.max.depth "3" --stringparam toc.section.depth "10" --xinclude -o "html/" "/Users/raffi/Personnel/boost_github/
-tools/boostbook/xsl/html.xsl" "../../../bin.v2/libs/test/doc/darwin-4.2.1/debug/test_doc.docbook"
