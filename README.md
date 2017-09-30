@@ -114,3 +114,4 @@ Some naming conventions are under development. Currently 3 possible components:
 * port quickbook
 * port filesystem and system tests
 * port regex
+* transfer interface include on header only
