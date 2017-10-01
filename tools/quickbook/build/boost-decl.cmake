@@ -19,6 +19,8 @@ endforeach()
 
 set(BOOST_LIB_${_current_package}_COMPONENTS_BUILD_DEPENDENCY
   "boostbook:build"
+  "program_options:build"
+  "filesystem:build"
 )
 set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY )
 set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY )
