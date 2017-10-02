@@ -26,6 +26,10 @@ include(CMakeParseArguments)
 #     the output variable that will be filled with the list of folders
 #   ``RELATIVE_PATH``
 #     (optional) if set, the returned path will be relative to this path
+#   ``SHOULD_HAVE_INCLUDE``:
+#     (optional) if set to True, then a library will be considered only if it contains
+#     an ``include`` subfolder directly at its root. This is for discovering sub projects
+#     (eg. boost.numerics)
 function(boost_get_all_libs)
 
   set(options SHOULD_HAVE_INCLUDE)
@@ -95,8 +99,34 @@ function(boost_get_all_libs)
 endfunction()
 
 
-# simple function that splits path/package:component into appropriate variables
+#.rst:
+# .. command:: boost_get_package_component_from_name
+#
+#   Function that splits path/package:component into appropriate variables
+#
+#   ::
+#
+#     boost_get_package_component_from_name(
+#         name
+#         path
+#         package
+#         component
+#         [COMPONENT_STRIP_PATH folder1 [folder2 ...]]
+#         )
+#
+#  * ``name`` input name of the current component, which can be a path
+#  * ``path`` returned path of the package
+#  * ``package`` returned package name of the component
+#  * ``component`` name of the component within the package
+#  * ``COMPONENT_STRIP_PATH`` if provided, strips this part from the ``name`` of the
+#    component (and not from the path) 
 function(boost_get_package_component_from_name name path package component)
+
+  set(options )
+  set(oneValueArgs )
+  set(multiValueArgs COMPONENT_STRIP_PATH)
+  cmake_parse_arguments(local_cmd "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
   string(FIND "${name}" ":" _index REVERSE)
   math(EXPR _indexp1 "${_index} + 1")
   string(SUBSTRING "${name}" "0" "${_index}" _package_path)
@@ -135,6 +165,7 @@ endfunction()
 #         ROOT_PATH root_path
 #         PACKAGES_OUTPUT_VAR variable_of_packages
 #         COMPONENTS_OUTPUT_VAR variable_of_components
+#         [COMPONENT_STRIP_PATH folder1 [folder2 ...]]
 #         )
 #
 #   ``LIST_FOLDERS``
@@ -145,6 +176,7 @@ endfunction()
 #     the variable that receives the packages
 #   ``COMPONENTS_OUTPUT_VAR``
 #     the variable that receives the components
+#   ``COMPONENT_STRIP_PATH`` removes those prefixes from the component names.
 #
 # The packages and components are all in lower case. The components are in the form
 # `package_name:component_name`.
@@ -152,7 +184,7 @@ function(boost_discover_packages_and_components)
 
   set(options )
   set(oneValueArgs ROOT_PATH PACKAGES_OUTPUT_VAR COMPONENTS_OUTPUT_VAR DEPENDENCY_VAR)
-  set(multiValueArgs LIST_FOLDERS)
+  set(multiValueArgs LIST_FOLDERS COMPONENT_STRIP_PATH)
   cmake_parse_arguments(local_cmd "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   # discovering all components
