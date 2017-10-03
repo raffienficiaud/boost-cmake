@@ -74,28 +74,17 @@ message(STATUS "boost_all_tools: ${boost_all_tools} /// boost_all_library: ${boo
 
 # dependencies -- check which are packages and declare their dependencies
 boost_discover_packages_and_components(
-  ROOT_PATH "${BOOST_ROOT_FOLDER}/"
+  RELATIVE_PATH "${BOOST_ROOT_FOLDER}/"
   LIST_FOLDERS ${boost_all_library} ${boost_all_tools}
   PACKAGES_OUTPUT_VAR BOOST_ALL_PACKAGES
+  PACKAGES_FOLDER_VAR BOOST_ALL_PACKAGES_FOLDERS
   COMPONENTS_OUTPUT_VAR BOOST_ALL_PACKAGES_COMPONENTS
   DEPENDENCY_VAR BOOST_COMPONENTS_DEPENDENCIES
-  COMPONENT_STRIP_PATH "libs" "tools")
-
-# boost_discover_packages_and_components(
-#   ROOT_PATH "${BOOST_ROOT_FOLDER}/"
-#   LIST_FOLDERS ${boost_all_tools}
-#   PACKAGES_OUTPUT_VAR BOOST_ALL_PACKAGES_TOOLS
-#   COMPONENTS_OUTPUT_VAR BOOST_ALL_PACKAGES_COMPONENTS_TOOLS
-#   DEPENDENCY_VAR BOOST_COMPONENTS_DEPENDENCIES_TOOLS)
+  PACKAGE_STRIP_PATH "libs" "tools")
 
 message(STATUS "All packages: ${BOOST_ALL_PACKAGES}")
 message(STATUS "All packages and components: ${BOOST_ALL_PACKAGES_COMPONENTS}")
-
-# message(STATUS "All packages tools: ${BOOST_ALL_PACKAGES_TOOLS}")
-# message(STATUS "All packages tools and components: ${BOOST_ALL_PACKAGES_COMPONENTS_TOOLS}")
-
-# set(BOOST_ALL_PACKAGES ${BOOST_ALL_PACKAGES} ${BOOST_ALL_PACKAGES_TOOLS})
-# set(BOOST_ALL_PACKAGES_COMPONENTS ${BOOST_ALL_PACKAGES_COMPONENTS} ${BOOST_ALL_PACKAGES_COMPONENTS_TOOLS})
+message(STATUS "All packages folders: ${BOOST_ALL_PACKAGES_FOLDERS}")
 
 # just for example: returns the components of the "test" package
 boost_package_get_all_components(
@@ -136,9 +125,10 @@ endif()
 
 # adding subprojects
 boost_add_subdirectories_in_order(
-  ROOT_PATH "${BOOST_ROOT_FOLDER}/libs/"
+  RELATIVE_PATH "${BOOST_ROOT_FOLDER}"
   ALL_COMPONENTS ${BOOST_ALL_PACKAGES_COMPONENTS}
   ALL_DEPENDENCIES ${BOOST_COMPONENTS_DEPENDENCIES}
+  ALL_FOLDERS ${BOOST_ALL_PACKAGES_FOLDERS}
   ${additional_options}
   #SUBSET_TO "test:build"
 )
