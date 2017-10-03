@@ -495,6 +495,7 @@ function(boost_add_subdirectories_in_order)
           add_library(boost::${current_package_no_slash} ALIAS boost_${current_package_no_slash}_header_only)
           add_library(boost::${current_package_no_slash}::header ALIAS boost_${current_package_no_slash}_header_only)
 
+          # adding header files on demand
           if(${local_cmd_VISIBLE_HEADER_ONLY})
             file(GLOB_RECURSE
                  _current_library_headers
@@ -502,7 +503,7 @@ function(boost_add_subdirectories_in_order)
             add_custom_target(
               boost_${current_package_no_slash}
               SOURCES ${_current_library_headers})
-            set_target_properties(boost_${current_package_no_slash}_${current_component}
+            set_target_properties(boost_${current_package_no_slash}
               PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}")
           endif()
         endif()
