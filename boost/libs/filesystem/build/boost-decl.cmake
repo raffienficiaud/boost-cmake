@@ -1,4 +1,10 @@
+# CURRENT_PACKAGE is an automatic variable set by the calling function
+# and can be modified in this script. The modified name will be registered
+# in the set of packages
+
+message(STATUS "Declaring package '${CURRENT_PACKAGE}'")
 set(_current_package "FILESYSTEM")
+
 set(BOOST_LIB_${_current_package}_COMPONENTS "build")
 
 # checking no aliasing

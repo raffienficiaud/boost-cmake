@@ -6,6 +6,7 @@
 # * ``BOOST_LIB_<current_package>_COMPONENTS``: list indicating all the components of the current package
 # * ``BOOST_LIB_<current_package>_COMPONENTS_<component>_DEPENDENCY`` list indicating all the dependencies of the ``component``
 
+message(STATUS "Declaring package '${CURRENT_PACKAGE}'")
 set(_current_package "QUICKBOOK")
 set(BOOST_LIB_${_current_package}_COMPONENTS "build" "doc" "test")
 

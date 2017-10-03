@@ -1,3 +1,4 @@
+message(STATUS "Declaring package '${CURRENT_PACKAGE}'")
 set(_current_package "PROGRAM_OPTIONS")
 set(BOOST_LIB_${_current_package}_COMPONENTS "build" "doc" "test")
 

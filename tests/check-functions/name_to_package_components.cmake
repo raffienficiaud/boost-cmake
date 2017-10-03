@@ -21,7 +21,7 @@ endif()
 
 # new settings
 boost_get_package_component_from_name("${name}" path package component
-  COMPONENT_STRIP_PATH "libs")
+  PACKAGE_STRIP_PATH "libs")
 
 if(NOT ("${path}" STREQUAL "libs/units"))
   message(FATAL_ERROR "Wrong path '${path}'")

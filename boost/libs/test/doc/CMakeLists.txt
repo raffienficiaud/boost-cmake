@@ -165,12 +165,12 @@ function(quickbook)
       OUTPUT
         "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.doxygen"
       COMMAND
-        ${CMAKE_COMMAND} \
-          -E env XML_CATALOG_FILES="${catalog_file}" \
-        ${xsltproc_prg} \
-          --stringparam doxygen.xml.path "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}" \
-          --xinclude -o "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.doxygen" \
-          "${BOOST_ROOT_FOLDER}/tools/boostbook/xsl/doxygen/collect.xsl" \
+        ${CMAKE_COMMAND}
+          -E env XML_CATALOG_FILES="${catalog_file}"
+        ${xsltproc_prg}
+          --stringparam doxygen.xml.path "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}"
+          --xinclude -o "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.doxygen"
+          "${BOOST_ROOT_FOLDER}/tools/boostbook/xsl/doxygen/collect.xsl"
           "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}/index.xml"
       DEPENDS
         "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}/index.xml"
@@ -182,12 +182,12 @@ function(quickbook)
       OUTPUT
         "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.boostbook"
       COMMAND
-        ${CMAKE_COMMAND} \
-          -E env XML_CATALOG_FILES="${catalog_file}" \
-        ${xsltproc_prg} \
-          --stringparam boost.defaults "Boost" \
-          --xinclude -o "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.boostbook" \
-          "${BOOST_ROOT_FOLDER}/tools/boostbook/xsl/doxygen/doxygen2boostbook.xsl" \
+        ${CMAKE_COMMAND}
+          -E env XML_CATALOG_FILES="${catalog_file}"
+        ${xsltproc_prg}
+          --stringparam boost.defaults "Boost"
+          --xinclude -o "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.boostbook"
+          "${BOOST_ROOT_FOLDER}/tools/boostbook/xsl/doxygen/doxygen2boostbook.xsl"
           "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.doxygen"
       DEPENDS
         "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.doxygen"
@@ -212,9 +212,9 @@ function(quickbook)
   # TODO: quickbook
   add_custom_command(
     COMMAND
-      quickbook \
+      quickbook
         -I"../../.."
-        --output-file="${output_folder}/${${prefix}_COMPONENT}_doc.xml" \
+        --output-file="${output_folder}/${${prefix}_COMPONENT}_doc.xml"
         "${${prefix}_DOCUMENTATION_ENTRY}"
   )
 
@@ -227,18 +227,18 @@ function(quickbook)
     OUTPUT
       "${output_folder}/${${prefix}_COMPONENT}_doc.docbook"
     COMMAND
-      ${CMAKE_COMMAND} \
-        -E env XML_CATALOG_FILES="${catalog_file}" \
-      ${xsltproc_prg} \
-        --stringparam boost.defaults "Boost" \
-        --stringparam boost.root "../../../.." \
-        --stringparam chapter.autolabel "0" \
-        --stringparam chunk.first.sections "1" \
-        --stringparam chunk.section.depth "4" \
-        --stringparam generate.section.toc.level "3" \
-        --stringparam html.stylesheet "boostbook.css" \
-        --stringparam toc.max.depth "3" \
-        --stringparam toc.section.depth "10" \
+      ${CMAKE_COMMAND}
+        -E env XML_CATALOG_FILES="${catalog_file}"
+      ${xsltproc_prg}
+        --stringparam boost.defaults "Boost"
+        --stringparam boost.root "../../../.."
+        --stringparam chapter.autolabel "0"
+        --stringparam chunk.first.sections "1"
+        --stringparam chunk.section.depth "4"
+        --stringparam generate.section.toc.level "3"
+        --stringparam html.stylesheet "boostbook.css"
+        --stringparam toc.max.depth "3"
+        --stringparam toc.section.depth "10"
         --xinclude -o "${output_folder}/${${prefix}_COMPONENT}_doc.docbook"
         "${BOOST_ROOT_FOLDER}/tools/boostbook/xsl/docbook.xsl"
         "${output_folder}/${${prefix}_COMPONENT}_doc.xml"
@@ -246,15 +246,15 @@ function(quickbook)
       "${output_folder}/${${prefix}_COMPONENT}_doc.xml"
   )
 
-  xslt-xsltproc-dir html/standalone_HTML.manifest # TODO check this file exists after generation
+  #xslt-xsltproc-dir html/standalone_HTML.manifest # TODO check this file exists after generation
 
   add_custom_command(
     OUTPUT
       html/standalone_HTML.manifest #### TODO adapt that thing
     COMMAND
-      ${CMAKE_COMMAND} \
-        -E env XML_CATALOG_FILES="${catalog_file}" \
-      ${xsltproc_prg} \
+      ${CMAKE_COMMAND}
+        -E env XML_CATALOG_FILES="${catalog_file}"
+      ${xsltproc_prg} 
         --stringparam boost.defaults "Boost"
         --stringparam boost.root "../../../.."
         --stringparam chapter.autolabel "0"
