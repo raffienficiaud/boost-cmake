@@ -78,7 +78,7 @@ function(quickbook_write_catalog boostbook_catalog_file)
   endif()
 
   file(APPEND "${output_file}"
-    "</catalog>\n"
+    "</catalog>\n")
 
   set(${boostbook_catalog_file} "${output_file}" PARENT_SCOPE)
 
@@ -196,7 +196,7 @@ function(quickbook)
 
     # now we need to do this
     # this is referenced in the test.qbk file
-    cp "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.boostbook"  "doxygen_reference_generated_doc.xml"
+    # cp "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.boostbook"  "doxygen_reference_generated_doc.xml"
 
     list(APPEND all_dependencies
       "${catalog_file}"
@@ -254,7 +254,7 @@ function(quickbook)
     COMMAND
       ${CMAKE_COMMAND}
         -E env XML_CATALOG_FILES="${catalog_file}"
-      ${xsltproc_prg} 
+      ${xsltproc_prg}
         --stringparam boost.defaults "Boost"
         --stringparam boost.root "../../../.."
         --stringparam chapter.autolabel "0"

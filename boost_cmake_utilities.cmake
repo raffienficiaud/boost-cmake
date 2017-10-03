@@ -462,7 +462,7 @@ function(boost_add_subdirectories_in_order)
         # find the location
         set(_found_location)
         foreach(_var_location IN LISTS local_cmd_ALL_FOLDERS)
-          string(REGEX MATCH "${current_package}=(.+)" _var_out "${_var_location}")
+          string(REGEX MATCH "^${current_package}=(.+)" _var_out "${_var_location}")
           if(NOT ("${CMAKE_MATCH_1}" STREQUAL ""))
             set(_found_location "${CMAKE_MATCH_1}")
             break()
@@ -482,8 +482,10 @@ function(boost_add_subdirectories_in_order)
           add_subdirectory(${local_cmd_RELATIVE_PATH}/${_found_location}/${current_component}
                            tmp_boost_${current_package}_${current_component}
                            ${add_subdirectory_options})
-        else()
+        elseif("${current_component}" STREQUAL "build")
           # in case we do not have a cmakelists.txt, we simulate a header only
+          # this works **only** for the build component, otherwise we have duplicated
+          # targets
           message(STATUS "-- [header only]")
           add_library(boost_${current_package_no_slash}_header_only INTERFACE)
           target_include_directories(boost_${current_package_no_slash}_header_only
@@ -500,7 +502,7 @@ function(boost_add_subdirectories_in_order)
             add_custom_target(
               boost_${current_package_no_slash}
               SOURCES ${_current_library_headers})
-            set_target_properties(boost_${current_package_no_slash}
+            set_target_properties(boost_${current_package_no_slash}_${current_component}
               PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}")
           endif()
         endif()

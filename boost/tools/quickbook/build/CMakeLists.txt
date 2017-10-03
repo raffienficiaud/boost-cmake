@@ -95,39 +95,3 @@ if(DEFINED BOOST_CURRENT_PACKAGE)
   add_library(boost::${BOOST_CURRENT_PACKAGE} ALIAS boost_quickbook)
   set_target_properties(boost_quickbook PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}")
 endif()
-
-
-
-
-
-
-project quickbook
-    : requirements
-        <toolset>gcc:<c++-template-depth>300
-        <toolset>darwin:<c++-template-depth>300
-        <toolset>gcc:<cflags>-g0
-        <toolset>darwin:<cflags>-g0
-        <toolset>msvc:<cflags>/wd4709
-    ;
-
-lib shell32 ;
-
-exe quickbook
-    :
-
-    /boost//program_options
-    /boost//filesystem
-    : #<define>QUICKBOOK_NO_DATES
-      <define>BOOST_FILESYSTEM_NO_DEPRECATED
-      <toolset>msvc:<cxxflags>/wd4355
-      <toolset>msvc:<cxxflags>/wd4511
-      <toolset>msvc:<cxxflags>/wd4512
-      <toolset>msvc:<cxxflags>/wd4701
-      <toolset>msvc:<cxxflags>/wd4702
-      <toolset>msvc:<cxxflags>/wd4244
-      <toolset>msvc:<cxxflags>/wd4267
-      <toolset>msvc:<cxxflags>/wd4800
-      <toolset>msvc:<define>_CRT_SECURE_NO_DEPRECATE
-      <toolset>msvc:<define>_SCL_SECURE_NO_DEPRECATE
-      <target-os>windows:<library>shell32
-    ;
