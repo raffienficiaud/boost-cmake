@@ -1,0 +1,8 @@
+
+message(STATUS "BOOST_CMAKE_LOCATION='${BOOST_CMAKE_LOCATION}'")
+include("${BOOST_CMAKE_LOCATION}/boost-cmake/quickbook.cmake")
+
+message(FATAL_ERROR "CMAKE_RUNTIME_OUTPUT_DIRECTORY=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+
+set(BOOST_ROOT_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}")
+quickbook_write_catalog(boost_catalog_file)

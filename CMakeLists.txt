@@ -23,7 +23,7 @@ endif()
 
 
 # The utility functions
-include(tools/boost-cmake/boost_cmake_utilities.cmake)
+include(tools/boost-cmake/boost-cmake/boost_cmake_utilities.cmake)
 
 option(BOOST_BUILD_DOC  "Indicates if the documentation should be generated" OFF)
 option(BOOST_BUILD_TEST "Indicates if the tests should be generated" OFF)

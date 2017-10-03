@@ -32,3 +32,4 @@ endfunction()
 set(CMake_TEST_EXPLICIT_MAKE_PROGRAM ${CMAKE_MAKE_PROGRAM})
 
 add_boostcmake_test("check-functions" TEST_DIR "check-functions")
+add_boostcmake_test("quickbook-functions" TEST_DIR "quickbook-functions")

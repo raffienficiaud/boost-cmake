@@ -2,7 +2,7 @@
 
 message(STATUS "BOOST_CMAKE_LOCATION='${BOOST_CMAKE_LOCATION}'")
 
-include("${BOOST_CMAKE_LOCATION}/boost_cmake_utilities.cmake")
+include("${BOOST_CMAKE_LOCATION}/boost-cmake/boost_cmake_utilities.cmake")
 
 set(name "libs/units:doc")
 boost_get_package_component_from_name("${name}" path package component)
