@@ -15,13 +15,13 @@ include(CMakeParseArguments)
 #   ::
 #
 #     boost_get_all_libs(
-#         ROOT_PATH root_path
+#         PATH path1 [path2 ...]
 #         OUTPUT_VAR output_variable
 #         [RELATIVE_PATH relative_to]
 #         )
 #
-#   ``ROOT_PATH``
-#     the root folder under which the subfolders will be discovered
+#   ``PATH``
+#     the folders under which the subfolders will be discovered
 #   ``OUTPUT_VAR``
 #     the output variable that will be filled with the list of folders
 #   ``RELATIVE_PATH``
@@ -33,11 +33,11 @@ include(CMakeParseArguments)
 function(boost_get_all_libs)
 
   set(options SHOULD_HAVE_INCLUDE)
-  set(oneValueArgs ROOT_PATH RELATIVE_PATH OUTPUT_VAR)
-  set(multiValueArgs)
+  set(oneValueArgs RELATIVE_PATH OUTPUT_VAR)
+  set(multiValueArgs PATH)
   cmake_parse_arguments(local_cmd "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  if("${local_cmd_ROOT_PATH}" STREQUAL "")
+  if("${local_cmd_PATH}" STREQUAL "")
     message(FATAL_ERROR "empty path given to boost_get_all_libs")
   endif()
 
@@ -54,47 +54,48 @@ function(boost_get_all_libs)
     set(glob_additional_options RELATIVE "${local_cmd_RELATIVE_PATH}")
   endif()
 
-  file(GLOB glob_discovered
-       LIST_DIRECTORIES true
-       ${glob_additional_options}
-       "${local_cmd_ROOT_PATH}/*"
-       )
-
   set(glob_discovered_trimmed)
-  foreach(_lib IN LISTS glob_discovered)
-    if(NOT IS_DIRECTORY "${local_cmd_RELATIVE_PATH}/${_lib}")
-      continue()
-    endif()
+  foreach(_current_path IN LISTS local_cmd_PATH)
+    file(GLOB glob_discovered
+         LIST_DIRECTORIES true
+         ${glob_additional_options}
+         "${_current_path}/*"
+         )
 
-    if("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${local_cmd_RELATIVE_PATH}/${_lib}")
-      continue()
-    endif()
+    foreach(_lib IN LISTS glob_discovered)
+      if(NOT IS_DIRECTORY "${local_cmd_RELATIVE_PATH}/${_lib}")
+        continue()
+      endif()
 
-    if(NOT (EXISTS "${local_cmd_RELATIVE_PATH}/${_lib}/include") AND "${local_cmd_SHOULD_HAVE_INCLUDE}")
-      # message(STATUS "Parsing subfolders of '${local_cmd_RELATIVE_PATH}/${_lib}'")
-      file(GLOB glob_discovered_secondary
-           LIST_DIRECTORIES true
-           ${glob_additional_options}
-           "${local_cmd_RELATIVE_PATH}/${_lib}/*"
-           )
-      #message(STATUS "${local_cmd_RELATIVE_PATH}/${_lib}/ : ${glob_discovered_secondary}")
-      foreach(_lib_secondary IN LISTS glob_discovered_secondary)
-        if(NOT IS_DIRECTORY "${local_cmd_RELATIVE_PATH}/${_lib_secondary}")
-          continue()
-        endif()
-        if(NOT EXISTS "${local_cmd_RELATIVE_PATH}/${_lib_secondary}/include")
-          continue()
-        endif()
-        list(APPEND glob_discovered_trimmed ${_lib_secondary})
-        #message(STATUS "Library ${_lib_secondary}")
-      endforeach()
-    else()
-      list(APPEND glob_discovered_trimmed ${_lib})
-      #message(STATUS "Library ${_lib}")
-    endif()
+      if("${CMAKE_CURRENT_LIST_DIR}" STREQUAL "${local_cmd_RELATIVE_PATH}/${_lib}")
+        continue()
+      endif()
 
-  endforeach()
+      if(NOT (EXISTS "${local_cmd_RELATIVE_PATH}/${_lib}/include") AND "${local_cmd_SHOULD_HAVE_INCLUDE}")
+        # message(STATUS "Parsing subfolders of '${local_cmd_RELATIVE_PATH}/${_lib}'")
+        file(GLOB glob_discovered_secondary
+             LIST_DIRECTORIES true
+             ${glob_additional_options}
+             "${local_cmd_RELATIVE_PATH}/${_lib}/*"
+             )
+        #message(STATUS "${local_cmd_RELATIVE_PATH}/${_lib}/ : ${glob_discovered_secondary}")
+        foreach(_lib_secondary IN LISTS glob_discovered_secondary)
+          if(NOT IS_DIRECTORY "${local_cmd_RELATIVE_PATH}/${_lib_secondary}")
+            continue()
+          endif()
+          if(NOT EXISTS "${local_cmd_RELATIVE_PATH}/${_lib_secondary}/include")
+            continue()
+          endif()
+          list(APPEND glob_discovered_trimmed ${_lib_secondary})
+          #message(STATUS "Library ${_lib_secondary}")
+        endforeach()
+      else()
+        list(APPEND glob_discovered_trimmed ${_lib})
+        #message(STATUS "Library ${_lib}")
+      endif()
 
+    endforeach()
+  endforeach() # path
   set(${local_cmd_OUTPUT_VAR} ${glob_discovered_trimmed} PARENT_SCOPE)
 endfunction()
 
@@ -119,7 +120,7 @@ endfunction()
 #  * ``package`` returned package name of the component
 #  * ``component`` name of the component within the package
 #  * ``COMPONENT_STRIP_PATH`` if provided, strips this part from the ``name`` of the
-#    component (and not from the path) 
+#    component (and not from the path)
 function(boost_get_package_component_from_name name path package component)
 
   set(options )
@@ -144,7 +145,22 @@ function(boost_get_package_component_from_name name path package component)
 
     set(_path "${_path}/${_package}")
     set(_package "${_path}")
-    #set(_package "${_path_colons}:${_package}")
+  endif()
+
+  if(NOT ("${local_cmd_COMPONENT_STRIP_PATH}" STREQUAL ""))
+    foreach(_strip IN LISTS local_cmd_COMPONENT_STRIP_PATH)
+      # removing trailing '/'
+      string(FIND "${_strip}" "/" _index REVERSE)
+      string(SUBSTRING "${_strip}" "0" "${_index}" _strip)
+
+      string(FIND "${_package}" "${_strip}/" _index)
+      if("${_index}" STREQUAL "-1")
+        continue()
+      endif()
+
+      string(REPLACE "${_strip}/" "" _package "${_package}")
+      break()
+    endforeach()
   endif()
 
   set(${path} ${_path} PARENT_SCOPE)
@@ -176,7 +192,8 @@ endfunction()
 #     the variable that receives the packages
 #   ``COMPONENTS_OUTPUT_VAR``
 #     the variable that receives the components
-#   ``COMPONENT_STRIP_PATH`` removes those prefixes from the component names.
+#   ``COMPONENT_STRIP_PATH`` removes those prefixes from the component names (forwarded to
+#     ``boost_get_package_component_from_name``)
 #
 # The packages and components are all in lower case. The components are in the form
 # `package_name:component_name`.
@@ -197,7 +214,12 @@ function(boost_discover_packages_and_components)
   foreach(_lib IN LISTS local_cmd_LIST_FOLDERS)
 
     # _lib can potentially contain a '/' and be "path": eg "numeric/ublas"
-    boost_get_package_component_from_name("${_lib}:" path package _component_dummy)
+    boost_get_package_component_from_name(
+      "${_lib}:"
+      path
+      package
+      _component_dummy
+      COMPONENT_STRIP_PATH "${local_cmd_COMPONENT_STRIP_PATH}")
     string(TOLOWER "${package}" CURRENT_PACKAGE_NAME_LOWER)
     string(TOUPPER "${package}" CURRENT_PACKAGE_NAME)
 

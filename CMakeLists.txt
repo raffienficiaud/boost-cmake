@@ -22,9 +22,6 @@ if("${BUILD_BOOST_CMAKE_TESTS}" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/Ru
 endif()
 
 
-message(FATAL_ERROR "BUILD_BOOST_CMAKE_TESTS=${BUILD_BOOST_CMAKE_TESTS}")
-
-
 # The utility functions
 include(tools/boost-cmake/boost_cmake_utilities.cmake)
 
@@ -38,30 +35,32 @@ endif()
 
 # get all tools
 boost_get_all_libs(
-  ROOT_PATH "${BOOST_ROOT_FOLDER}/tools"
-  RELATIVE_PATH ${BOOST_ROOT_FOLDER}
+  PATH "${BOOST_ROOT_FOLDER}/tools"
+  RELATIVE_PATH "${BOOST_ROOT_FOLDER}"
   OUTPUT_VAR boost_all_tools)
 
 # get all libs
 boost_get_all_libs(
-  ROOT_PATH "${BOOST_ROOT_FOLDER}/libs"
-  RELATIVE_PATH "${BOOST_ROOT_FOLDER}/libs"
+  PATH "${BOOST_ROOT_FOLDER}/libs"
+  RELATIVE_PATH "${BOOST_ROOT_FOLDER}"
   OUTPUT_VAR boost_all_library
   SHOULD_HAVE_INCLUDE)
 
 # temporary -- patching all <boost>/[libs|tools]/<library> with the files in "tools/boost-cmake/libs/"
 boost_get_all_libs(
-  ROOT_PATH "${BOOST_ROOT_FOLDER}/tools/boost-cmake/boost/"
+  PATH
+    "${BOOST_ROOT_FOLDER}/tools/boost-cmake/boost/libs"
+    "${BOOST_ROOT_FOLDER}/tools/boost-cmake/boost/tools"
   RELATIVE_PATH "${BOOST_ROOT_FOLDER}/tools/boost-cmake/boost/"
   OUTPUT_VAR patch_candidate_libs)
 
 set(relevant_folders_to_patch "build" "doc" "test")
 foreach(_folder IN LISTS patch_candidate_libs)
   foreach(_subfolder IN LISTS relevant_folders_to_patch)
-    if(EXISTS "${BOOST_ROOT_FOLDER}/tools/boost-cmake/${_folder}/${_subfolder}")
+    if(EXISTS "${BOOST_ROOT_FOLDER}/tools/boost-cmake/boost/${_folder}/${_subfolder}")
       message(STATUS "[tmp-patch] '${_folder}/${_subfolder}'")
       file(COPY
-        ${BOOST_ROOT_FOLDER}/tools/boost-cmake/${_folder}/${_subfolder}/
+        ${BOOST_ROOT_FOLDER}/tools/boost-cmake/boost/${_folder}/${_subfolder}/
         DESTINATION ${BOOST_ROOT_FOLDER}/${_folder}/${_subfolder}/
         FILES_MATCHING
           PATTERN "*.cmake"
@@ -71,30 +70,32 @@ foreach(_folder IN LISTS patch_candidate_libs)
   endforeach()
 endforeach()
 
+message(STATUS "boost_all_tools: ${boost_all_tools} /// boost_all_library: ${boost_all_library}")
 
 # dependencies -- check which are packages and declare their dependencies
 boost_discover_packages_and_components(
-  ROOT_PATH "${BOOST_ROOT_FOLDER}/libs/"
-  LIST_FOLDERS ${boost_all_library}
+  ROOT_PATH "${BOOST_ROOT_FOLDER}/"
+  LIST_FOLDERS ${boost_all_library} ${boost_all_tools}
   PACKAGES_OUTPUT_VAR BOOST_ALL_PACKAGES
   COMPONENTS_OUTPUT_VAR BOOST_ALL_PACKAGES_COMPONENTS
-  DEPENDENCY_VAR BOOST_COMPONENTS_DEPENDENCIES)
+  DEPENDENCY_VAR BOOST_COMPONENTS_DEPENDENCIES
+  COMPONENT_STRIP_PATH "libs" "tools")
 
-boost_discover_packages_and_components(
-  ROOT_PATH "${BOOST_ROOT_FOLDER}/"
-  LIST_FOLDERS ${boost_all_tools}
-  PACKAGES_OUTPUT_VAR BOOST_ALL_PACKAGES_TOOLS
-  COMPONENTS_OUTPUT_VAR BOOST_ALL_PACKAGES_COMPONENTS_TOOLS
-  DEPENDENCY_VAR BOOST_COMPONENTS_DEPENDENCIES_TOOLS)
+# boost_discover_packages_and_components(
+#   ROOT_PATH "${BOOST_ROOT_FOLDER}/"
+#   LIST_FOLDERS ${boost_all_tools}
+#   PACKAGES_OUTPUT_VAR BOOST_ALL_PACKAGES_TOOLS
+#   COMPONENTS_OUTPUT_VAR BOOST_ALL_PACKAGES_COMPONENTS_TOOLS
+#   DEPENDENCY_VAR BOOST_COMPONENTS_DEPENDENCIES_TOOLS)
 
 message(STATUS "All packages: ${BOOST_ALL_PACKAGES}")
 message(STATUS "All packages and components: ${BOOST_ALL_PACKAGES_COMPONENTS}")
 
-message(STATUS "All packages tools: ${BOOST_ALL_PACKAGES_TOOLS}")
-message(STATUS "All packages tools and components: ${BOOST_ALL_PACKAGES_COMPONENTS_TOOLS}")
+# message(STATUS "All packages tools: ${BOOST_ALL_PACKAGES_TOOLS}")
+# message(STATUS "All packages tools and components: ${BOOST_ALL_PACKAGES_COMPONENTS_TOOLS}")
 
-set(BOOST_ALL_PACKAGES ${BOOST_ALL_PACKAGES} ${BOOST_ALL_PACKAGES_TOOLS})
-set(BOOST_ALL_PACKAGES_COMPONENTS ${BOOST_ALL_PACKAGES_COMPONENTS} ${BOOST_ALL_PACKAGES_COMPONENTS_TOOLS})
+# set(BOOST_ALL_PACKAGES ${BOOST_ALL_PACKAGES} ${BOOST_ALL_PACKAGES_TOOLS})
+# set(BOOST_ALL_PACKAGES_COMPONENTS ${BOOST_ALL_PACKAGES_COMPONENTS} ${BOOST_ALL_PACKAGES_COMPONENTS_TOOLS})
 
 # just for example: returns the components of the "test" package
 boost_package_get_all_components(
