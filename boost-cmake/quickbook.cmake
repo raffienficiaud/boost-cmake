@@ -10,10 +10,18 @@
 set(_quickbook_source_dir "${CMAKE_CURRENT_SOURCE_DIR}")
 
 #.rst:
+# .. command:: quickbook_write_catalog
 #
-# Writes a catalog file for running the XSLT commands with user defined catalogs
+#   Writes a catalog file for running the XSLT commands with user defined catalogs
 #
-# * ``boostbook_catalog_file`` the catalog file
+#   ::
+#
+#     quickbook_write_catalog(catalog_file)
+#
+#   ``boostbook_catalog_file`` the catalog file
+#
+#   The variable ``BOOST_ROOT_FOLDER`` needs to be properly defined before
+#   calling this function, as it is used to point to the boostbook DTD.
 function(quickbook_write_catalog boostbook_catalog_file)
 
   if("${BOOST_ROOT_FOLDER}" STREQUAL "")
@@ -21,11 +29,11 @@ function(quickbook_write_catalog boostbook_catalog_file)
   endif()
 
 
-  if(NOT EXISTS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/quickbook")
-    file(MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/quickbook")
+  if(NOT EXISTS "${CMAKE_BINARY_DIR}/quickbook")
+    file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/quickbook")
   endif()
 
-  set(output_file "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/quickbook/boostbook_catalog.xml")
+  set(output_file "${CMAKE_BINARY_DIR}/quickbook/boostbook_catalog.xml")
 
 
   set(preamble
@@ -67,19 +75,28 @@ endfunction()
 
 
 #.rst:
+# .. command:: quickbook
 #
-# Defines a target that runs a quickbook command
+#   Defines a target that runs a quickbook command
 #
-#  .. quickbook(
-#       COMPONENT "component"
-#    )
+#   .. quickbook(
+#        COMPONENT "component"
+#      )
 
-# * ``COMPONENT`` the component for which the documentation is currently being generated (mandatory)
-# * ``DOXYGEN_CONFIGURATION_FILE`` indicates that the quickbook has a reference to a reference section extracted from
-#   Doxygen. This variable is either empty (no Doxygen) or points to the configuration file
-# * ``DOXYGEN_SOURCE_FILES`` the source files (the Doxygen documentation will be regenerated when any of those files has been changed)
-# * ``DOCUMENTATION_ENTRY`` the file used as an entry point for quickbook
+#   ``COMPONENT`` the component for which the documentation is currently being generated (mandatory)
+#   ``DOXYGEN_CONFIGURATION_FILE`` indicates that the quickbook has a reference to a reference section extracted from
+#     Doxygen. This variable is either empty (no Doxygen) or points to the configuration file
+#   ``DOXYGEN_SOURCE_FILES`` the source files (the Doxygen documentation will be regenerated when any of those files has been changed)
+#   ``DOCUMENTATION_ENTRY`` the file used as an entry point for quickbook
 #
+#   As for :command:`quickbook_write_catalog`, the variable ``BOOST_ROOT_FOLDER`` should be
+#   defined prior to calling this function.
+#
+#   .. note::
+#
+#      The function looks for the programs ``xsltproc`` and if needed ``doxygen``. Those
+#      are requirements for running the function. The lookup locations are the following
+#      the default behaviour of CMake.
 function(quickbook)
 
   # check for what cases this is needed
@@ -105,7 +122,7 @@ function(quickbook)
     message(FATAL_ERROR "Missing mandatory 'COMPONENT'")
   endif()
 
-  set(output_folder "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/quickbook/${${prefix}_COMPONENT}")
+  set(output_folder "${CMAKE_BINARY_DIR}/quickbook/${${prefix}_COMPONENT}")
 
   if(NOT EXISTS "${output_folder}")
     file(MAKE_DIRECTORY "${output_folder}")

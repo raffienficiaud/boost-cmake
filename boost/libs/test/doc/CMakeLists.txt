@@ -9,8 +9,10 @@
 # This cmake file defines the tests of the boost.test library
 # It is not meant to be included independently of the boost superproject cmake.
 
-####
-# Documentation files (files only, no target)
+# sources the quickbook package of boost-cmake
+find_package(quickbook)
+
+# a target to bring the quickbook source files into the project for easier editing/maintenance
 file(GLOB_RECURSE
      BOOST_TEST_DOC_FILES
      ${CMAKE_CURRENT_LIST_DIR}/*.qbk)
@@ -18,6 +20,7 @@ add_custom_target(
   quickbook
   SOURCES ${BOOST_TEST_DOC_FILES})
 set_property(TARGET quickbook PROPERTY FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}")
+
 
 
 

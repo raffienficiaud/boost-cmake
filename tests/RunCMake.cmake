@@ -1,4 +1,4 @@
-# copy pasted from the CMake project
+# inspired from the corresponding file from the CMake project
 
 
 foreach(arg
