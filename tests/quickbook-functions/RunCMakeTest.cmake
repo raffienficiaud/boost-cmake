@@ -21,3 +21,16 @@ set(boostcmake_DEFAULT_stderr ".*'/non/existant/path'.*")
 set(boostcmake_TEST_OPTIONS ${boostcmake_TEST_OPTIONS}
     "-DDOCBOOK_XSL_DIR=/non/existant/path")
 run_cmake(quickbook-catalog-non-existant-folders)
+
+
+# rebooting the variable
+unset(boostcmake_DEFAULT_stderr)
+set(boostcmake_TEST_OPTIONS "-DBOOST_CMAKE_LOCATION=${boostcmake_LOCATION}")
+
+find_program(xsltproc_prg NAMES "xsltproc")
+if("${xsltproc_prg}" STREQUAL "")
+  message(FATAL_ERROR "Cannot find the 'xsltproc' program")
+  run_cmake(quickbook-xsltproc-notfound)
+else()
+  run_cmake(quickbook-function1)
+endif()

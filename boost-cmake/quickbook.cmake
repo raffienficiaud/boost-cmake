@@ -122,6 +122,10 @@ function(quickbook)
     message(FATAL_ERROR "Missing mandatory 'COMPONENT'")
   endif()
 
+  if("${${prefix}_DOCUMENTATION_ENTRY}" STREQUAL "")
+    message(FATAL_ERROR "Missing mandatory 'DOCUMENTATION_ENTRY'")
+  endif()
+
   set(output_folder "${CMAKE_BINARY_DIR}/quickbook/${${prefix}_COMPONENT}")
 
   if(NOT EXISTS "${output_folder}")
@@ -209,6 +213,8 @@ function(quickbook)
 
   # TODO: quickbook
   add_custom_command(
+    OUTPUT
+      "${output_folder}/${${prefix}_COMPONENT}_doc.xml"
     COMMAND
       quickbook
         -I"../../.."
