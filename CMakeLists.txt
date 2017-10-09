@@ -21,9 +21,10 @@ if("${BUILD_BOOST_CMAKE_TESTS}" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/Ru
   return()
 endif()
 
+set(BOOST_CMAKE_UTILITY_DIR "${BOOST_ROOT_FOLDER}/tools/boost-cmake/boost-cmake")
 
 # The utility functions
-include(tools/boost-cmake/boost-cmake/boost_cmake_utilities.cmake)
+include(${BOOST_CMAKE_UTILITY_DIR}/boost_cmake_utilities.cmake)
 
 option(BOOST_BUILD_DOC  "Indicates if the documentation should be generated" OFF)
 option(BOOST_BUILD_TEST "Indicates if the tests should be generated" OFF)

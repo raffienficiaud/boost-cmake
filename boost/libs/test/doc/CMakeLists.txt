@@ -10,7 +10,7 @@
 # It is not meant to be included independently of the boost superproject cmake.
 
 # sources the quickbook package of boost-cmake
-find_package(quickbook)
+include(${BOOST_CMAKE_UTILITY_DIR}/quickbook.cmake)
 
 # a target to bring the quickbook source files into the project for easier editing/maintenance
 file(GLOB_RECURSE
