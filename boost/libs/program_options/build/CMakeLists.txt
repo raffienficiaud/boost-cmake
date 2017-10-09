@@ -48,6 +48,19 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/../include>
     $<INSTALL_INTERFACE:include>
   )
+target_link_libraries(boost_program_options
+  PUBLIC
+    boost::config
+    boost::any
+    boost::type_index
+    boost::static_assert
+    boost::throw_exception
+    boost::assert
+    boost::core
+    boost::type_traits
+    boost::function
+    boost::lexical_cast
+  )
 #target_link_libraries(boost_program_options
 #  PUBLIC boost::config boost::predef boost::assert boost::core
 #  )

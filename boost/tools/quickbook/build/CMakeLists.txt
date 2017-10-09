@@ -61,7 +61,6 @@ target_compile_definitions(
     BOOST_FILESYSTEM_NO_DEPRECATED
     ${additional_compilation_defines}
     $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,SHARED_LIBRARY>:BOOST_PROGRAM_OPTIONS_DYN_LINK=1>
-    ##<target-os>windows:<library>shell32
   )
 
 target_include_directories(

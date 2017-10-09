@@ -495,6 +495,19 @@ function(boost_add_subdirectories_in_order)
           add_library(boost::${current_package_no_slash} ALIAS boost_${current_package_no_slash}_header_only)
           add_library(boost::${current_package_no_slash}::header ALIAS boost_${current_package_no_slash}_header_only)
 
+          # add all the dependencies
+          foreach(_dependency IN LISTS current_component_dependencies)
+            boost_get_package_component_from_name("${_dependency}"
+              path_deps
+              package_deps
+              component_deps)
+            string(REPLACE "/" "_" deps_package_no_slash "${package_deps}")
+            message(STATUS "The dependency 'boost_${current_package_no_slash}_header_only' is '${deps_package_no_slash}'")
+            target_link_libraries(boost_${current_package_no_slash}_header_only
+              INTERFACE boost::${deps_package_no_slash})
+          endforeach()
+
+
           # adding header files on demand
           if(${local_cmd_VISIBLE_HEADER_ONLY})
             file(GLOB_RECURSE

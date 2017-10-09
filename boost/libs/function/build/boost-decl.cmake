@@ -1,5 +1,5 @@
 message(STATUS "Declaring package '${CURRENT_PACKAGE}'")
-set(_current_package "PROGRAM_OPTIONS")
+set(_current_package "FUNCTION")
 set(BOOST_LIB_${_current_package}_COMPONENTS "build" "doc" "test")
 
 # checking no aliasing
@@ -11,16 +11,7 @@ foreach(_component IN LISTS BOOST_LIB_${_current_package}_COMPONENTS)
 endforeach()
 
 set(BOOST_LIB_${_current_package}_COMPONENTS_BUILD_DEPENDENCY
-  "config:build"
-  "any:build"
-  "type_index:build"
-  "static_assert:build"
-  "throw_exception:build"
-  "assert:build"
-  "core:build"
-  "type_traits:build"
-  "function:build"
-  "lexical_cast:build"
+  "bind:build"
 )
-set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY "quickbook:build")
-set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY "program_options:build")
+set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY )
+set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY)
