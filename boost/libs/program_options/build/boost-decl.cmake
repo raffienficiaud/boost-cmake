@@ -21,6 +21,8 @@ set(BOOST_LIB_${_current_package}_COMPONENTS_BUILD_DEPENDENCY
   "type_traits:build"
   "function:build"
   "lexical_cast:build"
+  "smart_ptr:build"
+  "tokenizer:build"
 )
 set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY "quickbook:build")
 set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY "program_options:build")

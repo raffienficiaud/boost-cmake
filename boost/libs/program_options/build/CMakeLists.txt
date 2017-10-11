@@ -60,6 +60,8 @@ target_link_libraries(boost_program_options
     boost::type_traits
     boost::function
     boost::lexical_cast
+    boost::smart_ptr
+    boost::tokenizer
   )
 #target_link_libraries(boost_program_options
 #  PUBLIC boost::config boost::predef boost::assert boost::core
