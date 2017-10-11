@@ -1,13 +1,5 @@
-# boost-decl.cmake
-# declares the components of boost.test and their dependencies
-
-# The following variables should be defined:
-#
-# * ``BOOST_LIB_<current_package>_COMPONENTS``: list indicating all the components of the current package
-# * ``BOOST_LIB_<current_package>_COMPONENTS_<component>_DEPENDENCY`` list indicating all the dependencies of the ``component``
-
 message(STATUS "Declaring package '${CURRENT_PACKAGE}'")
-set(_current_package "QUICKBOOK")
+set(_current_package "SPIRIT")
 set(BOOST_LIB_${_current_package}_COMPONENTS "build" "doc" "test")
 
 # checking no aliasing
@@ -19,15 +11,7 @@ foreach(_component IN LISTS BOOST_LIB_${_current_package}_COMPONENTS)
 endforeach()
 
 set(BOOST_LIB_${_current_package}_COMPONENTS_BUILD_DEPENDENCY
-  "boostbook:build"
-  "program_options:build"
-  "filesystem:build"
-  "spirit:build"
-  "iostreams:build"
-  "tuple:build"
-  "foreach:build"
-  "algorithm:build"
-  "unordered:build"
+  "optional:build"
 )
 set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY )
 set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY )

@@ -38,9 +38,12 @@ set(boost_quickbook_SRC
     ../src/doc_info_grammar.cpp
 )
 
-add_library(boost_quickbook
+add_executable(boost_quickbook
   ${boost_quickbook_HEADERS}
   ${boost_quickbook_SRC})
+set_target_properties(boost_quickbook
+  PROPERTIES
+    RUNTIME_OUTPUT_NAME "quickbook")
 
 set(additional_compilation_flags)
 set(additional_compilation_defines)
@@ -71,15 +74,23 @@ target_include_directories(
   )
 
 target_link_libraries(boost_quickbook
-  PUBLIC boost::program_options boost:filesystem
+  PUBLIC
+    boost::program_options
+    boost::filesystem
+    boost::spirit
+    boost::iostreams
+    boost::tuple
+    boost::foreach
+    boost::algorithm
+    boost::unordered
   )
 
-if(MSVC)
-  # check how to do better
-  target_link_libraries(boost_quickbook
-    PUBLIC shell32
-    )
-endif()
+#if(MSVC)
+#  # check how to do better
+#  target_link_libraries(boost_quickbook
+#    PUBLIC shell32
+#    )
+#endif()
 
 install(
   TARGETS boost_quickbook
@@ -90,6 +101,6 @@ install(
 
 
 if(DEFINED BOOST_CURRENT_PACKAGE)
-  add_library(boost::${BOOST_CURRENT_PACKAGE} ALIAS boost_quickbook)
+  add_executable(boost::${BOOST_CURRENT_PACKAGE} ALIAS boost_quickbook)
   set_target_properties(boost_quickbook PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}")
 endif()
