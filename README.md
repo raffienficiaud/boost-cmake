@@ -114,6 +114,27 @@ Alias are used to map any target to a ``boost::library`` (where library is a kno
 * a possible convention would be `boost_<package>__<name-of-test>`
 * `boost::<package>__build_test` is an alias for building the tests, in case those are not part of the default build
 
+# Unit testing boost-cmake
+
+``boost-cmake`` contains unit tests on its components/functions. You may run those by adding the option ``-DBUILD_BOOST_CMAKE_TESTS=ON`` and directly from the ``boost-cmake`` folder, like this:
+
+    # cloning the repo in a clean boost superproject
+    cd <boost_root>/tools
+    git clone https://github.com/raffienficiaud/boost-cmake.git
+    cd boost-cmake
+
+    # creating the binary folder
+    mkdir build
+    cd build
+
+    # configuring for tests
+    cmake DBUILD_BOOST_CMAKE_TESTS=ON ..
+
+    # running the tests
+    ctest
+
+In case of tests, no other action is performed by the tool.
+
 ### Documentation
 
 ## Todos (random order)
