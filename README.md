@@ -14,12 +14,14 @@ Summary of actions for getting started:
 
 ## How it works
 
-* each library or tool of Boost is a package
-* each package describes its components and, for each component, their dependencies
+* each library or tool of Boost is called a **package**
+* each package describes its **components** and, for each component, their dependencies
 * those descriptions are read by the super project `CMakeLists.txt`
-* the libraries and components are then included in the main project, in the right order
+* the libraries and components are then included in the main project, in the *topological* order of their dependencies
 
-The description of the components and their dependencies is made via a tiny text file, `boost-decl.cmake`
+### Declaring components and dependencies
+
+The description of the package, components and their dependencies is made via a tiny text file, `boost-decl.cmake`
 that is in a CMake format.
 
 To integrate a library:
@@ -37,9 +39,11 @@ The current superproject `CMakeLists.txt` copies those `CMakeLists.txt` and `boo
 Those are meant to show some functional and real-case examples for porting to cmake:
 
 * all header only libraries of boost
-* boost.system
-* boost.test
-* boost.filesystem
+* ``boost.system``
+* ``boost.test``
+* ``boost.filesystem``
+* ``boost.program_options``
+* ``boost.quickbook``
 
 ## Features
 
@@ -59,6 +63,7 @@ Those are meant to show some functional and real-case examples for porting to cm
   nicely in an IDE
 * libraries not having a `boost-decl.cmake` / `CMakeLists.txt` are considered as
   header only and automatically added to the super project, which lowers the development/porting
+* libraries *having* a `boost-decl.cmake` but not having a `CMakeLists.txt` are considered header only, and their dependencies are properly declared such that their dependencies are propagated properly to their dependant/child projects.
 * the dependencies between the libraries are explicit, which is a **good** thing
 * there is no need for copying header files around: the files stay in their original library/submodule/location
   and their location is propagated to dependent project
@@ -92,6 +97,8 @@ Some naming conventions are under development. Currently 3 possible components:
 * `doc`: contains the documentation targets
 * `test`: contains the test targets
 
+Alias are used to map any target to a ``boost::library`` (where library is a known library or tool of boost).
+
 ### Build
 
 * `boost::<package>` is an alias to the default build artifact of package `<package>`
@@ -111,7 +118,6 @@ Some naming conventions are under development. Currently 3 possible components:
 
 ## Todos (random order)
 
-* port quickbook
 * port filesystem and system tests
 * port regex
-* transfer interface include on header only
+* unit testing quickbook functions
