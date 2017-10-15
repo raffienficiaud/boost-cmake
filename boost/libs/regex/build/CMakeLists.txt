@@ -53,7 +53,9 @@ else()
   endif()
 
   foreach(_library IN LISTS icuuc_generator_list_all)
-    find_library(${_library} ${_library}) # currently restricted at standard locations
+    find_library(${_library}_file ${_library}) # currently restricted at standard locations
+    add_library(${_library} UNKNOWN IMPORTED)
+    set_target_properties(${_library} PROPERTIES IMPORTED_LOCATION ${_library}_file)
   endforeach()
 
   ## "icudt", same rules as before, but we do not have the debug postfix??
@@ -64,13 +66,23 @@ else()
     set(icudt_generator
         $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,"STATIC_LIBRARY">:"s">${icudt_library_basename}
         )
+    set(icudt_generator_list_all
+        ${icudt_library_basename}
+        s${icudt_library_basename})
   else()
     # preprends an "s" for static
     set(icudt_library_basename "icudata")
     set(icudt_generator
         $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,"STATIC_LIBRARY">:"s">${icudt_library_basename} #
         )
+    set(icudt_generator_list_all
+        ${icudt_library_basename}
+        s${icudt_library_basename})
   endif()
+
+  foreach(_library IN LISTS icudt_generator_list_all)
+    find_library(${_library} ${_library}) # currently restricted at standard locations
+  endforeach()
 
 
   ## icuin,  same rules as before
@@ -81,20 +93,71 @@ else()
     set(icuin_generator
         $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,"STATIC_LIBRARY">:"s">${icuin_library_basename}$<$<CONFIG:Debug>:"d"> #
         )
+    set(icuin_generator_list_all
+        "${icuin_library_basename}"
+        "s${icuin_library_basename}"
+        "${icuin_library_basename}d"
+        "s${icuin_library_basename}d")
+
   else()
     # preprends an "s" for static
     set(icuin_library_basename "icudata")
     set(icuin_generator
         $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,"STATIC_LIBRARY">:"s">${icuin_library_basename} #
         )
+    set(icuin_generator_list_all
+        "${icuin_library_basename}"
+        "s${icuin_library_basename}")
   endif()
+
+  foreach(_library IN LISTS icuin_generator_list_all)
+    find_library(${_library} ${_library}) # currently restricted at standard locations
+  endforeach()
 
 endif()
 
 
+set(regex_target_link_opts
+    PUBLIC
+      ${icuuc_generator}
+      ${icudt_generator}
+      ${icuin_generator})
+set(regex_target_compile_def_opts
+    PUBLIC
+      BOOST_HAS_ICU=1
+      $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,"STATIC_LIBRARY">:U_STATIC_IMPLEMENTATION=1>)
+
+
 # given a detected ICU, we need to check that a small program is actually running
 # correctly
+if(NOT DEFINED BOOST_REGEX_ICU_CHECKS OR "${BOOST_REGEX_ICU_CHECKS}" STREQUAL "")
 
+  include(CheckCXXSourceCompiles)
+
+  file(READ "${CMAKE_SOURCE_DIR}/has_icu_test.cpp" source_code)
+  if(${MSVC_OR_INTEL_WINDOWS})
+    # we double this one
+    set(icudt_generator_list_all_to_check
+        ${icudt_generator_list_all}
+        ${icudt_generator_list_all})
+  endif()
+
+  list(LENGTH icudt_generator_list_all_to_check var_length)
+  foreach(element RANGE ${var_length})
+
+    list()
+    set(CMAKE_REQUIRED_INCLUDES "")
+    set(CMAKE_REQUIRED_LIBRARIES ${regex_target_link_opts})
+    CHECK_CXX_SOURCE_COMPILES("${source_code}" icu_check_run_var)
+
+    message(FATAL_ERROR "icu_check_run_var/${_link}: ${icu_check_run_var}")
+    #try_run(
+    #        COMPILE_DEFINITIONS
+    #        LINK_LIBRARIES ${regex_target_link_opts})
+  endforeach()
+
+  #set(BOOST_REGEX_ICU_CHECKS "0" CACHE INTERNAL "indicates if the regex/icu checks have already been performed")
+endif()
 
 
 file(GLOB_RECURSE boost_regex_HEADERS ../include/*.*)
@@ -132,10 +195,6 @@ target_compile_definitions(
     $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,SHARED_LIBRARY>:BOOST_REGEX_DYN_LINK=1>
   )
 
-# Raffi: todo add this from the Jamfile
-#  : # See https://svn.boost.org/trac/boost/ticket/5049
-#    <target-os>hpux,<toolset>gcc:<define>_INCLUDE_STDC__SOURCE_199901
-
 target_include_directories(
   boost_regex
   PUBLIC
@@ -145,10 +204,15 @@ target_include_directories(
 target_link_libraries(boost_regex
   PUBLIC
     boost::config
+    boost::predef
+    boost::assert
+    boost::throw_exception
+    boost::smart_ptr
+    boost::mpl
+    boost::type_traits
+    boost::integer
+    boost::functional
   )
-#target_link_libraries(boost_regex
-#  PUBLIC boost::config boost::predef boost::assert boost::core
-#  )
 
 install(
   TARGETS boost_regex

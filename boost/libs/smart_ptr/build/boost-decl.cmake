@@ -7,7 +7,7 @@
 # See http://www.boost.org/libs/test for the library home page.
 
 message(STATUS "Declaring package '${CURRENT_PACKAGE}'")
-set(_current_package "REGEX")
+set(_current_package "SMART_PTR")
 set(BOOST_LIB_${_current_package}_COMPONENTS "build" "doc" "test")
 
 # checking no aliasing
@@ -19,14 +19,7 @@ foreach(_component IN LISTS BOOST_LIB_${_current_package}_COMPONENTS)
 endforeach()
 
 set(BOOST_LIB_${_current_package}_COMPONENTS_BUILD_DEPENDENCY
-  "predef:build"
-  "mpl:build"
-  "assert:build"
-  "throw_exception:build"
-  "smart_ptr:build"
-  "type_traits:build"
-  "integer:build"
-  "functional:build"
+  "core:build"
 )
 set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY )
-set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY )
+set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY)
