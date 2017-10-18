@@ -134,7 +134,9 @@ if(NOT DEFINED BOOST_REGEX_ICU_CHECKS OR "${BOOST_REGEX_ICU_CHECKS}" STREQUAL ""
 
   include(CheckCXXSourceCompiles)
 
-  file(READ "${CMAKE_SOURCE_DIR}/has_icu_test.cpp" source_code)
+  
+  file(READ "${CMAKE_CURRENT_SOURCE_DIR}/has_icu_test.cpp" source_code)
+  set(icudt_generator_list_all_to_check ${icudt_generator_list_all})
   if(${MSVC_OR_INTEL_WINDOWS})
     # we double this one
     set(icudt_generator_list_all_to_check
@@ -145,7 +147,6 @@ if(NOT DEFINED BOOST_REGEX_ICU_CHECKS OR "${BOOST_REGEX_ICU_CHECKS}" STREQUAL ""
   list(LENGTH icudt_generator_list_all_to_check var_length)
   foreach(element RANGE ${var_length})
 
-    list()
     set(CMAKE_REQUIRED_INCLUDES "")
     set(CMAKE_REQUIRED_LIBRARIES ${regex_target_link_opts})
     CHECK_CXX_SOURCE_COMPILES("${source_code}" icu_check_run_var)
