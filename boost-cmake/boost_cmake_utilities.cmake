@@ -522,10 +522,10 @@ function(boost_add_subdirectories_in_order)
             file(GLOB_RECURSE
                  _current_library_headers
                  ${local_cmd_RELATIVE_PATH}/${_found_location}/include/*)
-            add_custom_target(
-              boost_${current_package_no_slash}
-              SOURCES ${_current_library_headers})
-            set_target_properties(boost_${current_package_no_slash}
+            target_sources(
+              boost_${current_package_no_slash}_header_only
+              PUBLIC ${_current_library_headers})
+            set_target_properties(boost_${current_package_no_slash}_header_only
               PROPERTIES FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}")
           endif()
         endif()

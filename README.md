@@ -90,6 +90,11 @@ cmake -G <your generator> -DBOOST_CREATE_VISIBLE_HEADER_ONLY=ON
 * `BOOST_CREATE_VISIBLE_HEADER_ONLY` if set to `ON`, will create a target for header only libraries that are
   visible on the IDE (as custom commands)
 
+#### Options specific to ICU
+
+* `BOOST_REGEX_DISABLE_ICU` if set to `TRUE`, disables ICU support in `boost.regex`
+* `BOOST_REGEX_ICU_LIB` location of the library part of libICU (manually set)
+
 ## Naming conventions
 Some naming conventions are under development. Currently 3 possible components:
 
