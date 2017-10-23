@@ -53,7 +53,7 @@ else()
   endif()
 
   foreach(_library IN LISTS icuuc_generator_list_all)
-    find_library(${_library}_file ${_library}) # currently restricted at standard locations
+    find_library(${_library}_file ${_library}) # currently restricted to standard locations
     add_library(${_library} UNKNOWN IMPORTED)
     set_target_properties(${_library} PROPERTIES IMPORTED_LOCATION ${_library}_file)
   endforeach()
@@ -81,9 +81,10 @@ else()
   endif()
 
   foreach(_library IN LISTS icudt_generator_list_all)
-    find_library(${_library} ${_library}) # currently restricted at standard locations
+    find_library(${_library}_file ${_library}) # currently restricted at standard locations
+    add_library(${_library} UNKNOWN IMPORTED)
+    set_target_properties(${_library} PROPERTIES IMPORTED_LOCATION ${_library}_file)
   endforeach()
-
 
   ## icuin,  same rules as before
   if(${MSVC_OR_INTEL_WINDOWS})
@@ -101,7 +102,7 @@ else()
 
   else()
     # preprends an "s" for static
-    set(icuin_library_basename "icudata")
+    set(icuin_library_basename "icuin")
     set(icuin_generator
         $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,"STATIC_LIBRARY">:"s">${icuin_library_basename} #
         )
@@ -110,9 +111,18 @@ else()
         "s${icuin_library_basename}")
   endif()
 
+  #foreach(_library IN LISTS icuin_generator_list_all)
+  #  find_library(${_library} ${_library}) # currently restricted at standard locations
+  #endforeach()
   foreach(_library IN LISTS icuin_generator_list_all)
-    find_library(${_library} ${_library}) # currently restricted at standard locations
+    find_library(${_library}_file ${_library}) # currently restricted at standard locations
+    add_library(${_library} UNKNOWN IMPORTED)
+    set_target_properties(${_library} PROPERTIES IMPORTED_LOCATION ${_library}_file)
   endforeach()
+
+  # default ICU
+  find_package(ICU OPTIONAL_COMPONENTS data i18n uc)
+  message(STATUS "ICU: ${ICU_LIBRARIES}")
 
 endif()
 
@@ -145,12 +155,15 @@ if(NOT DEFINED BOOST_REGEX_ICU_CHECKS OR "${BOOST_REGEX_ICU_CHECKS}" STREQUAL ""
   list(LENGTH icudt_generator_list_all_to_check var_length)
   foreach(element RANGE ${var_length})
 
-    list()
+    list(GET icuuc_generator_list_all ${element} current_icuuc)
+    list(GET icudt_generator_list_all_to_check ${element} current_icudt)
+    list(GET icuin_generator_list_all ${element} current_icuin)
     set(CMAKE_REQUIRED_INCLUDES "")
-    set(CMAKE_REQUIRED_LIBRARIES ${regex_target_link_opts})
+    set(CMAKE_REQUIRED_LIBRARIES "${current_icuuc}" "${current_icudt}" "${current_icuin}")
     CHECK_CXX_SOURCE_COMPILES("${source_code}" icu_check_run_var)
 
-    message(FATAL_ERROR "icu_check_run_var/${_link}: ${icu_check_run_var}")
+    message(FATAL_ERROR "icu_check_run_var/${_link}: ${icu_check_run_var}"
+        "${current_icuuc}_file" "${current_icudt}_file" "${current_icuin}_file")
     #try_run(
     #        COMPILE_DEFINITIONS
     #        LINK_LIBRARIES ${regex_target_link_opts})
