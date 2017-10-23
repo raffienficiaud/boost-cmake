@@ -536,3 +536,23 @@ function(boost_add_subdirectories_in_order)
     list(LENGTH already_added_components length_added_components)
   endwhile()
 endfunction()
+
+
+#.rst:
+# .. command:: boost_detect_static_stdlib_linking
+#
+function(boost_detect_static_stdlib_linking)
+  # do not know if this should be a function or a global variable indicating
+  # the static lib linking
+  message(FATAL_ERROR "not implemented yet")
+endfunction()
+
+
+### WIP
+function(boost_parse_headers_for_dependencies)
+set(options )
+set(oneValueArgs ROOT_PATH )
+set(multiValueArgs ALL_PACKAGES)
+cmake_parse_arguments(local_cmd "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+endfunction()

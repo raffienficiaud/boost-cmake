@@ -10,28 +10,25 @@ cmake_minimum_required(VERSION 3.4)
 project(Boost)
 enable_testing()
 
-# Root folder of Boost super project
+
+option(BUILD_BOOST_CMAKE_TESTS OFF)
 set(BOOST_ROOT_FOLDER ${CMAKE_CURRENT_LIST_DIR})
 
-# location of boost-cmake relative to the super project
-set(BOOST_CMAKE_UTILITY_DIR "${BOOST_ROOT_FOLDER}/tools/boost-cmake/boost-cmake")
 
-# options visible to the user
-option(BUILD_BOOST_CMAKE_TESTS OFF)
-option(BOOST_BUILD_DOC  "Indicates if the documentation should be generated" OFF)
-option(BOOST_BUILD_TEST "Indicates if the tests should be generated" OFF)
-option(BOOST_CREATE_VISIBLE_HEADER_ONLY "Makes the header only libraries visible (on eg. IDE) with an associated target" OFF)
-
-
-# if defined, we run the tests for the boost-cmake module
+# if defined, we run the tests for this module
 if("${BUILD_BOOST_CMAKE_TESTS}" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/RunCMake.cmake")
   add_subdirectory(tests)
   return()
 endif()
 
-# including the boost-cmake
+set(BOOST_CMAKE_UTILITY_DIR "${BOOST_ROOT_FOLDER}/tools/boost-cmake/boost-cmake")
+
+# The utility functions
 include(${BOOST_CMAKE_UTILITY_DIR}/boost_cmake_utilities.cmake)
 
+option(BOOST_BUILD_DOC  "Indicates if the documentation should be generated" OFF)
+option(BOOST_BUILD_TEST "Indicates if the tests should be generated" OFF)
+option(BOOST_CREATE_VISIBLE_HEADER_ONLY "Makes the header only libraries visible (on eg. IDE) with an associated target" OFF)
 
 if("${BOOST_WITH_COMPONENT}")
   set(BOOST_WITH_COMPONENT "" "A list of coma separated components to build" CACHE STRING)
