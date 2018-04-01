@@ -11,31 +11,37 @@ project(boost.quickbook)
 
 set(boost_quickbook_HEADERS) # no headers
 set(boost_quickbook_SRC
-    ../src/quickbook.cpp
-    ../src/actions.cpp
-    ../src/doc_info_actions.cpp
-    ../src/state.cpp
-    ../src/dependency_tracker.cpp
-    ../src/utils.cpp
-    ../src/files.cpp
-    ../src/native_text.cpp
-    ../src/glob.cpp
-    ../src/include_paths.cpp
-    ../src/values.cpp
-    ../src/document_state.cpp
-    ../src/id_generation.cpp
-    ../src/id_xml.cpp
-    ../src/post_process.cpp
-    ../src/collector.cpp
-    ../src/template_stack.cpp
-    ../src/code_snippet.cpp
-    ../src/markups.cpp
-    ../src/syntax_highlight.cpp
-    ../src/grammar.cpp
-    ../src/main_grammar.cpp
-    ../src/block_element_grammar.cpp
-    ../src/phrase_element_grammar.cpp
-    ../src/doc_info_grammar.cpp
+  ../src/utils.cpp
+  ../src/dependency_tracker.cpp
+  ../src/document_state.cpp
+  ../src/boostbook_chunker.cpp
+  ../src/quickbook.cpp
+  ../src/post_process.cpp
+  ../src/html_printer.cpp
+  ../src/state.cpp
+  ../src/syntax_highlight.cpp
+  ../src/id_xml.cpp
+  ../src/phrase_element_grammar.cpp
+  ../src/tree.cpp
+  ../src/template_stack.cpp
+  ../src/id_generation.cpp
+  ../src/files.cpp
+  ../src/doc_info_actions.cpp
+  ../src/collector.cpp
+  ../src/markups.cpp
+  ../src/stream.cpp
+  ../src/main_grammar.cpp
+  ../src/path.cpp
+  ../src/grammar.cpp
+  ../src/glob.cpp
+  ../src/include_paths.cpp
+  ../src/bb2html.cpp
+  ../src/doc_info_grammar.cpp
+  ../src/code_snippet.cpp
+  ../src/block_element_grammar.cpp
+  ../src/values.cpp
+  ../src/actions.cpp
+  ../src/xml_parse.cpp
 )
 
 add_executable(boost_quickbook
@@ -43,6 +49,7 @@ add_executable(boost_quickbook
   ${boost_quickbook_SRC})
 set_target_properties(boost_quickbook
   PROPERTIES
+    CXX_STANDARD 11
     RUNTIME_OUTPUT_NAME "quickbook")
 
 set(additional_compilation_flags)

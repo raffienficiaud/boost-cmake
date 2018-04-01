@@ -1,11 +1,13 @@
-# Boost.CMake support
-# Tools for quickbook
-#
 # Copyright Raffi Enficiaud 2017
 #
 # Distributed under the Boost Software License, Version 1.0.
 #    (See accompanying file LICENSE_1_0.txt or copy at
 #          http://www.boost.org/LICENSE_1_0.txt)
+#
+# Boost.CMake support
+# Tools for quickbook
+
+
 
 set(_quickbook_source_dir "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -47,21 +49,25 @@ function(quickbook_write_catalog boostbook_catalog_file)
   file(APPEND "${output_file}"
        "  <rewriteURI uriStartString=\"http://www.boost.org/tools/boostbook/dtd/\" rewritePrefix=\"file://${BOOST_ROOT_FOLDER}/tools/boostbook/dtd/\"/>\n")
 
-  if(NOT ("${DOCBOOK_XSL_DIR}" STREQUAL ""))
-    if(NOT EXISTS "${DOCBOOK_XSL_DIR}")
-      message(WARNING "DOCBOOK_XSL_DIR is not accessible (${DOCBOOK_XSL_DIR})")
+  get_filename_component(DOCBOOK_XSL_DIR_ABS "${DOCBOOK_XSL_DIR}" ABSOLUTE)
+  if(NOT ("${DOCBOOK_XSL_DIR_ABS}" STREQUAL ""))
+    if(NOT EXISTS "${DOCBOOK_XSL_DIR_ABS}")
+      message(WARNING "DOCBOOK_XSL_DIR is not accessible (${DOCBOOK_XSL_DIR_ABS})")
     else()
+      # the last / in the file:/// is important
       file(APPEND "${output_file}"
-           "  <rewriteURI uriStartString=\"http://docbook.sourceforge.net/release/xsl/current/\" rewritePrefix=\"file://${DOCBOOK_XSL_DIR}\"/>\n")
+           "  <rewriteURI uriStartString=\"http://docbook.sourceforge.net/release/xsl/current/\" rewritePrefix=\"file://${DOCBOOK_XSL_DIR_ABS}/\"/>\n")
     endif()
   endif()
 
-  if(NOT ("${DOCBOOK_DTD_DIR}" STREQUAL ""))
-    if(NOT EXISTS "${DOCBOOK_DTD_DIR}")
-      message(WARNING "DOCBOOK_DTD_DIR is not accessible (${DOCBOOK_DTD_DIR})")
+  get_filename_component(DOCBOOK_DTD_DIR_ABS "${DOCBOOK_DTD_DIR}" ABSOLUTE)
+  if(NOT ("${DOCBOOK_DTD_DIR_ABS}" STREQUAL ""))
+    if(NOT EXISTS "${DOCBOOK_DTD_DIR_ABS}")
+      message(WARNING "DOCBOOK_DTD_DIR is not accessible (${DOCBOOK_DTD_DIR_ABS})")
     else()
+      # the last / in the file:/// is important
       file(APPEND "${output_file}"
-           "  <rewriteURI uriStartString=\"http://www.oasis-open.org/docbook/xml/4.2/\" rewritePrefix=\"file://${DOCBOOK_DTD_DIR}\"/>\n")
+           "  <rewriteURI uriStartString=\"http://www.oasis-open.org/docbook/xml/4.2/\" rewritePrefix=\"file://${DOCBOOK_DTD_DIR_ABS}/\"/>\n")
     endif()
   endif()
 
@@ -107,7 +113,8 @@ function(quickbook)
   # xsltproc is required
   find_program(xsltproc_prg NAMES "xsltproc")
   if("${xsltproc_prg}" STREQUAL "")
-    message(FATAL_ERROR "Cannot find the 'xsltproc' program")
+    message(FATAL_ERROR "Cannot find the 'xsltproc' program. You can override this"
+      "behaviour by passing '-Dxsltproc_prg=/path/to/xsltproc' from the command line")
   endif()
 
   # parsing
@@ -118,6 +125,7 @@ function(quickbook)
   set(prefix _quickbook_target)
   cmake_parse_arguments(PARSE_ARGV 0 ${prefix} "${options}" "${oneValueArgs}" "${multiValueArgs}" )
 
+  # sanity checks
   if("${${prefix}_COMPONENT}" STREQUAL "")
     message(FATAL_ERROR "Missing mandatory 'COMPONENT'")
   endif()
@@ -126,13 +134,15 @@ function(quickbook)
     message(FATAL_ERROR "Missing mandatory 'DOCUMENTATION_ENTRY'")
   endif()
 
+  # output folder
   set(output_folder "${CMAKE_BINARY_DIR}/quickbook/${${prefix}_COMPONENT}")
-
   if(NOT EXISTS "${output_folder}")
     file(MAKE_DIRECTORY "${output_folder}")
   endif()
 
-  set(all_dependencies)
+  quickbook_write_catalog(catalog_file)
+
+  set(all_dependencies "${catalog_file}")
 
   if(NOT "${${prefix}_DOXYGEN_CONFIGURATION_FILE}" STREQUAL "")
 
@@ -160,7 +170,6 @@ function(quickbook)
         "${doxygen_configured_file}" # check on how to generate this only if needed
     )
 
-    quickbook_write_catalog(catalog_file)
     # doxygen processing
     # ""${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.doxygen"" is not a folder, but the output file
     add_custom_command(
@@ -201,14 +210,13 @@ function(quickbook)
     # cp "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}.boostbook"  "doxygen_reference_generated_doc.xml"
 
     list(APPEND all_dependencies
-      "${catalog_file}"
       "${output_folder}/${DOXYGEN_OUTPUT_XML_FOLDER}/index.xml")
   endif()
 
 
   # main file
-  if(NOT TARGET quickbook)
-    message(FATAL_ERROR "'quickbook' target should have been declared before calling this function")
+  if(NOT TARGET boost::quickbook)
+    message(FATAL_ERROR "'boost::quickbook' target should have been declared before calling this function")
   endif()
 
   # TODO: quickbook
@@ -216,8 +224,8 @@ function(quickbook)
     OUTPUT
       "${output_folder}/${${prefix}_COMPONENT}_doc.xml"
     COMMAND
-      quickbook
-        -I"../../.."
+      boost::quickbook
+        -I"${BOOST_ROOT_FOLDER}"
         --output-file="${output_folder}/${${prefix}_COMPONENT}_doc.xml"
         "${${prefix}_DOCUMENTATION_ENTRY}"
   )
@@ -227,6 +235,14 @@ function(quickbook)
   # call multipleargs part (the ones below have been generated from Jamfile.v2)
   # NOTE: the image part does not appear in the command line
 
+  get_filename_component(CATALOG_FOLDER "${catalog_file}" DIRECTORY)
+
+  set(html_output_folder "${output_folder}/html")
+  file(RELATIVE_PATH BOOST_ROOT_RELATIVE_FOLDER "${html_output_folder}" "${BOOST_ROOT_FOLDER}")
+
+  # message(FATAL_ERROR "BOOST_ROOT_RELATIVE_FOLDER = ${BOOST_ROOT_RELATIVE_FOLDER} vs ${html_output_folder} vs ${BOOST_ROOT_FOLDER}")
+
+
   add_custom_command(
     OUTPUT
       "${output_folder}/${${prefix}_COMPONENT}_doc.docbook"
@@ -234,8 +250,8 @@ function(quickbook)
       ${CMAKE_COMMAND}
         -E env XML_CATALOG_FILES="${catalog_file}"
       ${xsltproc_prg}
-        --stringparam boost.defaults "Boost"
-        --stringparam boost.root "../../../.."
+        --stringparam boost.defaults \"Boost\"
+        --stringparam boost.root "${BOOST_ROOT_RELATIVE_FOLDER}"
         --stringparam chapter.autolabel "0"
         --stringparam chunk.first.sections "1"
         --stringparam chunk.section.depth "4"
@@ -243,6 +259,8 @@ function(quickbook)
         --stringparam html.stylesheet "boostbook.css"
         --stringparam toc.max.depth "3"
         --stringparam toc.section.depth "10"
+        --path "${CATALOG_FOLDER}"
+        --path "${output_folder}"
         --xinclude -o "${output_folder}/${${prefix}_COMPONENT}_doc.docbook"
         "${BOOST_ROOT_FOLDER}/tools/boostbook/xsl/docbook.xsl"
         "${output_folder}/${${prefix}_COMPONENT}_doc.xml"
@@ -254,13 +272,14 @@ function(quickbook)
 
   add_custom_command(
     OUTPUT
-      html/standalone_HTML.manifest #### TODO adapt that thing
+      ${html_output_folder}/standalone_HTML.manifest #### TODO adapt that thing
+      ${html_output_folder}/index.html
     COMMAND
       ${CMAKE_COMMAND}
         -E env XML_CATALOG_FILES="${catalog_file}"
       ${xsltproc_prg}
         --stringparam boost.defaults "Boost"
-        --stringparam boost.root "../../../.."
+        --stringparam boost.root "${BOOST_ROOT_RELATIVE_FOLDER}"
         --stringparam chapter.autolabel "0"
         --stringparam chunk.first.sections "1"
         --stringparam chunk.section.depth "4"
@@ -269,7 +288,7 @@ function(quickbook)
         --stringparam manifest "standalone_HTML.manifest"
         --stringparam toc.max.depth "3"
         --stringparam toc.section.depth "10"
-        --xinclude -o "html/"
+        --xinclude -o "${html_output_folder}/"
         "${BOOST_ROOT_FOLDER}/tools/boostbook/xsl/html.xsl"
         "${output_folder}/${${prefix}_COMPONENT}_doc.docbook"
     DEPENDS
@@ -278,6 +297,8 @@ function(quickbook)
    )
 
   add_custom_target(${${prefix}_COMPONENT}_quickbook
-    COMMAND some commands)
+      SOURCES
+      ${html_output_folder}/standalone_HTML.manifest
+      ${html_output_folder}/index.html)
 
 endfunction()

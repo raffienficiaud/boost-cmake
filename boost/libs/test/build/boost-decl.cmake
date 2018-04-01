@@ -45,5 +45,5 @@ set(BOOST_LIB_${_current_package}_COMPONENTS_BUILD_DEPENDENCY
   "type_index:build"
   "detail:build"
 )
-set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY ) #"quickbook:core")
+set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY "quickbook:build")
 set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY "test:build")

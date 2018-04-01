@@ -27,6 +27,7 @@ set(BOOST_LIB_${_current_package}_COMPONENTS_BUILD_DEPENDENCY
   "exception:build" # smart_ptr
   "throw_exception:build" # smart_ptr
   "io:build"
+  "container_hash:build"
   "functional:build"
   "assert:build"
   "range:build"
