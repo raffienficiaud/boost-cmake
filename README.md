@@ -128,7 +128,7 @@ Alias are used to map any target to a ``boost::library`` (where library is a kno
     cd build
 
     # configuring for tests
-    cmake DBUILD_BOOST_CMAKE_TESTS=ON ..
+    cmake -DDBUILD_BOOST_CMAKE_TESTS=ON ..
 
     # running the tests
     ctest
