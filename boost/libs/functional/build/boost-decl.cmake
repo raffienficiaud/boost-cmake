@@ -14,6 +14,7 @@ set(BOOST_LIB_${_current_package}_COMPONENTS_BUILD_DEPENDENCY
   "preprocessor:build"
   "integer:build"
   "detail:build"
+  "container_hash:build"
 )
 set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY )
 set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY)
