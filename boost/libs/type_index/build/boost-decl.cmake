@@ -11,6 +11,7 @@ foreach(_component IN LISTS BOOST_LIB_${_current_package}_COMPONENTS)
 endforeach()
 
 set(BOOST_LIB_${_current_package}_COMPONENTS_BUILD_DEPENDENCY
+  "container_hash:build"
   "mpl:build"
   "functional:build"
 )
