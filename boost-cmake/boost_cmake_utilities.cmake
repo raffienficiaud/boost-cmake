@@ -247,7 +247,7 @@ function(boost_discover_packages_and_components)
       list(APPEND all_packages_folders "${CURRENT_PACKAGE}=${path}")
 
       set(_current_package_components ${BOOST_LIB_${CURRENT_PACKAGE_NAME}_COMPONENTS})
-      message(STATUS "** Package ${CURRENT_PACKAGE_NAME} defines components '${_current_package_components}'")
+      message(STATUS "    ** ${CURRENT_PACKAGE_NAME} defines components '${_current_package_components}'")
       # todo: check that package has not been defined yet
 
       # integrity check and discovery
@@ -258,7 +258,7 @@ function(boost_discover_packages_and_components)
           message(WARNING "Non standard component '${_component}'")
         endif()
         set(_current_component_dependencies ${BOOST_LIB_${CURRENT_PACKAGE_NAME}_COMPONENTS_${CURRENT_COMPONENT_NAME}_DEPENDENCY})
-        message(STATUS "*** Component '${_component}' dependent of '${_current_component_dependencies}'")
+        message(STATUS "    *** '${_component}' depends on '${_current_component_dependencies}'")
         list(APPEND all_packages_and_components "${CURRENT_PACKAGE_NAME_LOWER}:${CURRENT_COMPONENT_NAME_LOWER}")
         foreach(_dependency IN LISTS _current_component_dependencies)
           list(APPEND all_components_dependency "${CURRENT_PACKAGE_NAME_LOWER}:${CURRENT_COMPONENT_NAME_LOWER}:${_dependency}")
@@ -393,7 +393,7 @@ function(boost_add_subdirectories_in_order)
     set(subset_component_to_add ${local_cmd_ALL_COMPONENTS})
   else()
     list(REMOVE_DUPLICATES local_cmd_SUBSET_TO)
-    message(STATUS "Subset of components: '${local_cmd_SUBSET_TO}'")
+    # message(STATUS "Subset of components: '${local_cmd_SUBSET_TO}'")
     while(NOT "${local_cmd_SUBSET_TO}" STREQUAL "")
       #message(STATUS "local_cmd_SUBSET_TO: ${local_cmd_SUBSET_TO}")
       list(GET local_cmd_SUBSET_TO 0 current_component)
@@ -412,7 +412,7 @@ function(boost_add_subdirectories_in_order)
       endforeach()
     endwhile()
   endif()
-  message(STATUS "Components to build: '${subset_component_to_add}'")
+  # message(STATUS "Components to build: '${subset_component_to_add}'")
 
   list(REMOVE_DUPLICATES subset_component_to_add)
   list(LENGTH subset_component_to_add length_components)
@@ -453,7 +453,7 @@ function(boost_add_subdirectories_in_order)
       if(${component_dependencies_all_added})
         list(APPEND already_added_components ${_component})
         boost_get_package_component_from_name("${_component}" path current_package current_component)
-        message(STATUS "Boost:component: adding ${current_package}:${current_component} from ${path}")
+        message(STATUS "[COMPONENT] ${current_package}:${current_component}: '${path}'")
 
         set(BOOST_CURRENT_PACKAGE "${current_package}")
         set(BOOST_CURRENT_COMPONENT "${current_component}")
@@ -486,7 +486,7 @@ function(boost_add_subdirectories_in_order)
           # in case we do not have a cmakelists.txt, we simulate a header only
           # this works **only** for the build component, otherwise we have duplicated
           # targets
-          message(STATUS "-- [header only]")
+          message(STATUS "   header")
           add_library(boost_${current_package_no_slash}_header_only INTERFACE)
           target_include_directories(boost_${current_package_no_slash}_header_only
             INTERFACE
@@ -496,16 +496,25 @@ function(boost_add_subdirectories_in_order)
           add_library(boost::${current_package_no_slash}::header ALIAS boost_${current_package_no_slash}_header_only)
 
           # add all the dependencies
+          set(all_current_dependencies)
           foreach(_dependency IN LISTS current_component_dependencies)
             boost_get_package_component_from_name("${_dependency}"
               path_deps
               package_deps
               component_deps)
             string(REPLACE "/" "_" deps_package_no_slash "${package_deps}")
-            message(STATUS "The dependency 'boost_${current_package_no_slash}_header_only' is '${deps_package_no_slash}'")
+            #message(STATUS "The dependency 'boost_${current_package_no_slash}_header_only' is '${deps_package_no_slash}'")
+            list(APPEND all_current_dependencies "${package_deps}")
             target_link_libraries(boost_${current_package_no_slash}_header_only
               INTERFACE boost::${deps_package_no_slash})
           endforeach()
+
+          if(NOT "${all_current_dependencies}" STREQUAL "")
+            message(STATUS "   DEPENDS ON:")
+            foreach(_dependency IN LISTS all_current_dependencies)
+                message(STATUS "   - ${_dependency}")
+            endforeach()
+          endif()
 
 
           # adding header files on demand
