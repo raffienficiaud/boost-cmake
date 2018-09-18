@@ -12,18 +12,20 @@
 # sources the quickbook package of boost-cmake
 include(${BOOST_CMAKE_UTILITY_DIR}/quickbook.cmake)
 
-# a target to bring the quickbook source files into the project for easier editing/maintenance
+# listing all the quickbook files
 file(GLOB_RECURSE
      BOOST_TEST_DOC_FILES
      ${CMAKE_CURRENT_LIST_DIR}/*.qbk)
-add_custom_target(
-  quickbook
-  SOURCES ${BOOST_TEST_DOC_FILES})
-set_property(TARGET quickbook PROPERTY FOLDER "boost.${BOOST_CURRENT_PACKAGE}/${BOOST_CURRENT_COMPONENT}")
 
+# listing all the header files (doxygen)
+file(GLOB_RECURSE boost_test_headers
+     LIST_DIRECTORIES false 
+     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+     ${CMAKE_CURRENT_LIST_DIR}/../include/*.hpp)
 
-
-
+quickbook(COMPONENT test
+          DOCUMENTATION_ENTRY ${CMAKE_CURRENT_LIST_DIR}/test.qbk
+          DOXYGEN_SOURCE_FILES ${boost_test_headers})
 
 # Commands for quickbook
 # produced by
