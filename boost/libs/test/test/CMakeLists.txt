@@ -136,3 +136,6 @@ add_test(
   COMMAND ${BOOST_CURRENT_PACKAGE}_${BOOST_CURRENT_COMPONENT}-all)
 set_tests_properties(${all_test_commands} PROPERTIES FIXTURES_SETUP ${BOOST_CURRENT_COMPONENT}-all-fixture)
 set_tests_properties(${BOOST_TEST_TEST_PREFIX_NAME}-all   PROPERTIES FIXTURES_REQUIRES    ${BOOST_CURRENT_COMPONENT}-all-fixture)
+
+# label all tests
+set_tests_properties(${all_test_commands} ${BOOST_TEST_TEST_PREFIX_NAME}-all PROPERTIES LABELS "run-${BOOST_CURRENT_PACKAGE}-tests")
