@@ -41,6 +41,7 @@ set(BOOST_TEST_DEPENDENCIES
   boost::algorithm
   boost::range # indirect from boost::algorithm
   boost::numeric_conversion
+  boost::optional
 )
 
 set(BOOST_UTF_SRC

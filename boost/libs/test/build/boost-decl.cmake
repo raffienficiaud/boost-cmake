@@ -44,6 +44,9 @@ set(BOOST_LIB_${_current_package}_COMPONENTS_BUILD_DEPENDENCY
   "integer:build"
   "type_index:build"
   "detail:build"
+  "optional:build" # needed by some parts in datasets
 )
 set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY "quickbook:build")
-set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY "test:build")
+set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY 
+  "test:build"
+)
