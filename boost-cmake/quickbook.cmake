@@ -296,7 +296,7 @@ function(quickbook)
       # adding css as well if any?
    )
 
-  add_custom_target(${${prefix}_COMPONENT}_quickbook
+  add_custom_target(boost_${${prefix}_COMPONENT}_quickbook
       SOURCES
       ${html_output_folder}/standalone_HTML.manifest
       ${html_output_folder}/index.html)

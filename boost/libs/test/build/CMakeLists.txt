@@ -9,74 +9,13 @@
 cmake_minimum_required(VERSION 3.2)
 project(boost.test)
 
-
-if(FALSE)
-  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-  set(CMAKE_MACOSX_RPATH ON)
-
-  # build type, by default to release (with optimisations)
-  if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-    message(STATUS "Setting build type to 'Release' as none was specified.")
-    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-    # Set the possible values of build type for cmake-gui
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
-  endif()
-
-  if(NOT WITHOUT_TESTS)
-    # ctest sets BUILD_TESTING automatically, but does not seem to serve its purpose.
-    enable_testing()
-  endif()
-
-
-  include(CheckCXXCompilerFlag)
-  include(CheckIncludeFileCXX)
-
-  if(NOT MSVC)
-    # c++11 options
-    check_cxx_compiler_flag(-std=c++11 HAS_CXX11_FLAG)
-    check_cxx_compiler_flag(-std=c++0x HAS_CXX0X_FLAG)
-    if(HAS_CXX11_FLAG)
-      message(STATUS "Compiling with C++11 support")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    elseif(HAS_CXX0X_FLAG)
-      #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-    endif()
-  endif()
-
-  if(MSVC)
-    add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
-    set(MSVC_Additional_flags "/fp:fast /GF /Oy /GT /Ox /Ob2 /Oi /Os")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MSVC_Additional_flags}")
-  endif()
-
-endif()
-
-
 add_definitions(-DBOOST_TEST_NO_LIB)
 
-# global path
-set(BOOST_TEST_ROOT_DIR ${BoostTest_SOURCE_DIR}/..)
-set(BOOST_ROOT_DIR ${BOOST_TEST_ROOT_DIR}/../..)
-get_filename_component(BOOST_TEST_ROOT_DIR_ABS ${BoostTest_SOURCE_DIR}/.. ABSOLUTE)
-get_filename_component(BOOST_ROOT_DIR_ABS ${BOOST_ROOT_DIR} ABSOLUTE)
-
-
-# include globs
+# include globs, bad
 file(GLOB_RECURSE
      BOOST_UTF_HEADERS
      ../include/*.hpp
      ../include/*.ipp)
-
-# organize files
-if(FALSE)
-foreach(_h IN LISTS BOOST_UTF_HEADERS)
-  get_filename_component(_hh ${_h} ABSOLUTE)
-  file(RELATIVE_PATH _v ${BOOST_TEST_ROOT_DIR_ABS}/include/boost/test ${_hh})
-  get_filename_component(_v "${_v}" DIRECTORY)
-  string(REPLACE "/" "\\" _v "${_v}")
-  source_group(${_v} FILES ${_h})
-endforeach()
-endif()
 
 set(BOOST_TEST_DEPENDENCIES
   boost::config
