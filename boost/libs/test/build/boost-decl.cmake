@@ -50,4 +50,9 @@ set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY "quickbook:build")
 set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY 
   "test:build"
   "rational:build"
+  "multiprecision:build"
+  "lexical_cast:build" # indirect from multiprecision
+  "atomic:build"  # indirect from multiprecision
+  "fusion:build"  # indirect from multiprecision
+  "typeof:build"
 )

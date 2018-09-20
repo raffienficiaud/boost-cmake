@@ -43,7 +43,7 @@ foreach(_h IN LISTS BOOST_UTF_DOC_EXAMPLES)
   )
   target_compile_features(${_current_target} PUBLIC cxx_std_11)
   target_link_libraries(${_current_target}
-      boost::${BOOST_CURRENT_PACKAGE}::header)
+    PRIVATE  boost::${BOOST_CURRENT_PACKAGE}::header)
   set_target_properties(${_current_target}
     PROPERTIES 
       FOLDER "${BOOST_TEST_FOLDER_IDE}/Doc examples")
@@ -60,7 +60,7 @@ foreach(_h IN LISTS BOOST_UTF_DOC_EXAMPLES)
 endforeach()
 
 # some specific targets needing specific things
-target_link_libraries(${BOOST_TEST_TARGET_PREFIX_NAME}-doc-tolerance_04 boost::rational)
+target_link_libraries(${BOOST_TEST_TARGET_PREFIX_NAME}-doc-tolerance_04 PRIVATE boost::rational)
 
 
 
@@ -123,6 +123,16 @@ foreach(_ts IN LISTS BOOST_UTF_TESTS_IND_FILES)
   unset(_boost_utf_current_tsuite)
 
 endforeach() # test suite
+
+# targets specific needs
+target_link_libraries(test-test-writing-test-ts-fp-multiprecision-comparison-test 
+  PRIVATE 
+    boost::multiprecision
+    boost::lexical_cast # should be provided by multiprecision
+    boost::atomic # should be provided by multiprecision
+    boost::fusion # should be provided by multiprecision
+    boost::typeof # should be provided by multiprecision
+  )
 
 
 # build all target
