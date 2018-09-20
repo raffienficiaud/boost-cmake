@@ -59,6 +59,9 @@ foreach(_h IN LISTS BOOST_UTF_DOC_EXAMPLES)
   endif()
 endforeach()
 
+# some specific targets needing specific things
+target_link_libraries(${BOOST_TEST_TARGET_PREFIX_NAME}-doc-tolerance_04 boost::rational)
+
 
 
 # datasets

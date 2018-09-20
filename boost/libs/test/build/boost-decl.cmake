@@ -49,4 +49,5 @@ set(BOOST_LIB_${_current_package}_COMPONENTS_BUILD_DEPENDENCY
 set(BOOST_LIB_${_current_package}_COMPONENTS_DOC_DEPENDENCY "quickbook:build")
 set(BOOST_LIB_${_current_package}_COMPONENTS_TEST_DEPENDENCY 
   "test:build"
+  "rational:build"
 )
