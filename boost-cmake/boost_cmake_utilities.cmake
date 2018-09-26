@@ -5,8 +5,6 @@
 #    (See accompanying file LICENSE_1_0.txt or copy at
 #          http://www.boost.org/LICENSE_1_0.txt)
 
-include(CMakeParseArguments)
-
 #.rst:
 # .. command:: boost_get_all_libs
 #
@@ -348,7 +346,59 @@ function(boost_package_get_all_dependencies )
   set(${local_cmd_OUTPUT_VAR} ${all_dependencies} PARENT_SCOPE)
 endfunction()
 
+#.rst:
+# .. command:: boost_clone_package
+#
+#  Clones one or several boost libraries (packages) in the right location in the build tree.
+# 
+#   ::
+#
+#     boost_clone_package(
+#         PACKAGES package1 [package2 ...]
+#
+#  ``PACKAGES``
+#    name of the boost packages to clone
+#  ``BOOST_ROOT_FOLDER``
+#    root folder of boost.
+function(boost_clone_library )
+  set(options )
+  set(oneValueArgs BOOST_ROOT_FOLDER )
+  set(multiValueArgs PACKAGES)
+  cmake_parse_arguments(local_cmd "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
+  if("${local_cmd_PACKAGES}" STREQUAL "")
+    message(FATAL_ERROR "boost_clone_package called with empty package list")
+  endif()
+
+  if("${local_cmd_BOOST_ROOT_FOLDER}" STREQUAL "")
+    message(FATAL_ERROR "boost_clone_package called without root folder")
+  endif()
+
+  if(NOT BOOST_SUPERPROJECT_GIT_INIT_DONE)
+    set(BOOST_SUPERPROJECT_GIT_INIT_DONE TRUE CACHE)
+    execute_process(
+      COMMAND git submodule init
+      WORKING_DIRECTORY ${BOOST_ROOT}
+      )
+  endif()
+
+  
+
+  set(all_dependencies )
+  string(TOLOWER ${local_cmd_PACKAGES} CURRENT_PACKAGES_NAME_LOWER)
+
+  include(ExternalProject)  
+  
+  foreach(_comp IN LISTS CURRENT_PACKAGES_NAME_LOWER)
+
+    execute_process(
+      COMMAND git config submodule.${comp}.url
+      WORKING_DIRECTORY "${local_cmd_BOOST_ROOT_FOLDER}"
+      OUTPUT_VARIABLE current_package_url
+      )
+
+  endforeach()
+endfunction()
 
 #.rst:
 # .. command:: boost_add_subdirectories_in_order
