@@ -382,7 +382,19 @@ function(boost_clone_library )
       )
   endif()
 
-  
+  file(STRINGS "${local_cmd_BOOST_ROOT_FOLDER}"/.gitmodules all_modules)
+
+  # looking for something like this
+  #[submodule "quickbook"]
+  #path = tools/quickbook
+  #url = ../quickbook.git
+  #fetchRecurseSubmodules = on-demand
+
+  string(REGEX MATCH 
+        "[submodule \"quickbook\"]\s*.*?path=(.*?)"
+        path_found 
+        all_modules)
+
 
   set(all_dependencies )
   string(TOLOWER ${local_cmd_PACKAGES} CURRENT_PACKAGES_NAME_LOWER)
