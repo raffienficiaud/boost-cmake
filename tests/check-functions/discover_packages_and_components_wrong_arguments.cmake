@@ -12,6 +12,6 @@ if(RELATIVE_PATH_OPTION)
 endif()
 
 boost_discover_packages_and_components(
-    LIST_FOLDER var_all_libraries
+    LIST_FOLDERS ${var_all_libraries}
     ${all_options}
 )

@@ -207,6 +207,11 @@ function(boost_discover_packages_and_components)
   set(multiValueArgs LIST_FOLDERS PACKAGE_STRIP_PATH)
   cmake_parse_arguments(local_cmd "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
+  
+  if("${local_cmd_LIST_FOLDERS}" STREQUAL "")
+    message(FATAL_ERROR "Empty LIST_FOLDERS passed to boost_discover_packages_and_components")
+  endif()
+
   if("${local_cmd_RELATIVE_PATH}" STREQUAL "")
     message(FATAL_ERROR "Empty RELATIVE_PATH passed to boost_discover_packages_and_components")
   elseif(NOT EXISTS "${local_cmd_RELATIVE_PATH}")
