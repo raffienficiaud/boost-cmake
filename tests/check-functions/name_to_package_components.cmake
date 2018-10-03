@@ -4,6 +4,7 @@ message(STATUS "BOOST_CMAKE_LOCATION='${BOOST_CMAKE_LOCATION}'")
 
 include("${BOOST_CMAKE_LOCATION}/boost-cmake/boost_cmake_utilities.cmake")
 
+# checks the `boost_get_package_component_from_name` function behaviour
 set(name "libs/units:doc")
 boost_get_package_component_from_name("${name}" path package component)
 
@@ -20,7 +21,9 @@ if(NOT ("${component}" STREQUAL "doc"))
 endif()
 
 # new settings
-boost_get_package_component_from_name("${name}" path package component
+boost_get_package_component_from_name(
+  "${name}" 
+  path package component
   PACKAGE_STRIP_PATH "libs")
 
 if(NOT ("${path}" STREQUAL "libs/units"))

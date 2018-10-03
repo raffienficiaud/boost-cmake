@@ -4,6 +4,9 @@ message(STATUS "BOOST_CMAKE_LOCATION='${BOOST_CMAKE_LOCATION}'")
 message(STATUS "BOOST_ROOT_FOLDER='${BOOST_ROOT_FOLDER}'")
 message(STATUS "DOCBOOK_XSL_DIR='${DOCBOOK_XSL_DIR}'")
 message(STATUS "DOCBOOK_DTD_DIR='${DOCBOOK_DTD_DIR}'")
+
+# includes the main quickbook utility file. This requires the target
+# quickbook to exist
 include("${BOOST_CMAKE_LOCATION}/boost-cmake/quickbook.cmake")
 
 set(BOOST_ROOT_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}")

@@ -29,7 +29,7 @@ set(boostcmake_TEST_OPTIONS "-DBOOST_CMAKE_LOCATION=${boostcmake_LOCATION}")
 
 find_program(xsltproc_prg NAMES "xsltproc")
 if("${xsltproc_prg}" STREQUAL "")
-  message(FATAL_ERROR "Cannot find the 'xsltproc' program")
+  #message(FATAL_ERROR "Cannot find the 'xsltproc' program")
   run_cmake(quickbook-xsltproc-notfound)
 else()
   run_cmake(quickbook-function1)
