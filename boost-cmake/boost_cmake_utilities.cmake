@@ -207,6 +207,26 @@ function(boost_discover_packages_and_components)
   set(multiValueArgs LIST_FOLDERS PACKAGE_STRIP_PATH)
   cmake_parse_arguments(local_cmd "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
+  if("${local_cmd_RELATIVE_PATH}" STREQUAL "")
+    message(FATAL_ERROR "Empty RELATIVE_PATH passed to boost_discover_packages_and_components")
+  elseif(NOT EXISTS "${local_cmd_RELATIVE_PATH}")
+    message(FATAL_ERROR "RELATIVE_PATH given as argument does not exist: '${local_cmd_RELATIVE_PATH}'")
+  endif()
+
+  if("${local_cmd_PACKAGES_OUTPUT_VAR}" STREQUAL "")
+    message(FATAL_ERROR "Empty PACKAGES_OUTPUT_VAR passed to boost_discover_packages_and_components")
+  endif()
+  if("${local_cmd_PACKAGES_FOLDER_VAR}" STREQUAL "")
+    message(FATAL_ERROR "Empty PACKAGES_FOLDER_VAR passed to boost_discover_packages_and_components")
+  endif()
+  if("${local_cmd_COMPONENTS_OUTPUT_VAR}" STREQUAL "")
+    message(FATAL_ERROR "Empty COMPONENTS_OUTPUT_VAR passed to boost_discover_packages_and_components")
+  endif()
+  if("${local_cmd_DEPENDENCY_VAR}" STREQUAL "")
+    message(FATAL_ERROR "Empty DEPENDENCY_VAR passed to boost_discover_packages_and_components")
+  endif()
+  
+
   # discovering all components
   set(standard_components "DOC" "TEST" "BUILD")
   set(description_file "build/boost-decl.cmake")
