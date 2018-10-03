@@ -1,0 +1,1 @@
+Empty output variable given to boost_get_all_libs

@@ -5,8 +5,6 @@
 #    (See accompanying file LICENSE_1_0.txt or copy at
 #          http://www.boost.org/LICENSE_1_0.txt)
 
-include(CMakeParseArguments)
-
 #.rst:
 # .. command:: boost_get_all_libs
 #
@@ -27,7 +25,7 @@ include(CMakeParseArguments)
 #   ``RELATIVE_PATH``
 #     (optional) if set, the returned path will be relative to this path
 #   ``SHOULD_HAVE_INCLUDE``:
-#     (optional) if set to True, then a library will be considered only if it contains
+#     (optional) if set to ``TRUE``, a library will be considered only if it contains
 #     an ``include`` subfolder directly at its root. This is for discovering sub projects
 #     (eg. boost.numerics)
 function(boost_get_all_libs)
@@ -38,11 +36,11 @@ function(boost_get_all_libs)
   cmake_parse_arguments(local_cmd "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if("${local_cmd_PATH}" STREQUAL "")
-    message(FATAL_ERROR "empty path given to boost_get_all_libs")
+    message(FATAL_ERROR "Empty path given to boost_get_all_libs")
   endif()
 
   if("${local_cmd_OUTPUT_VAR}"  STREQUAL "")
-    message(FATAL_ERROR "empty output variable given to boost_get_all_libs")
+    message(FATAL_ERROR "Empty output variable given to boost_get_all_libs")
   endif()
 
   if("${local_cmd_SHOULD_HAVE_INCLUDE}"  STREQUAL "")

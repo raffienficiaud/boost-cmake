@@ -7,4 +7,9 @@
 
 cmake_minimum_required(VERSION 3.5)
 project(${boostcmake_TEST} NONE)
+
+
+# This file is needed by any of the utility functions
+include("${BOOST_CMAKE_LOCATION}/boost-cmake/boost_cmake_utilities.cmake")
+
 include(${boostcmake_TEST}.cmake)
