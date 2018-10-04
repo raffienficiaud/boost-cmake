@@ -331,8 +331,9 @@ function(boost_package_get_all_components )
   set(all_components )
   string(TOLOWER ${local_cmd_PACKAGE} CURRENT_PACKAGE_NAME_LOWER)
   foreach(_comp IN LISTS local_cmd_ALL_COMPONENTS)
+    message(STATUS "Parsing _comp=${_comp}")
     string(FIND "${_comp}" "${CURRENT_PACKAGE_NAME_LOWER}:" _index)
-    if(NOT "${_index}" EQUAL "0")
+    if("${_index}" EQUAL "0")
       string(LENGTH "${CURRENT_PACKAGE_NAME_LOWER}:" _length)
       string(SUBSTRING "${_comp}" "${_length}" "-1" _package_component)
       list(APPEND all_components ${_package_component})
@@ -342,9 +343,9 @@ function(boost_package_get_all_components )
 endfunction()
 
 #.rst:
-# .. command:: boost_get_all_components
+# .. command:: boost_package_get_all_dependencies
 #
-#  Returns all the components of a given package
+#  Returns all the dependencies of a given package
 #
 #  ``COMPONENT``
 #    name of the component
